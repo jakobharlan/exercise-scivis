@@ -1,7 +1,10 @@
 #include "fensterchen.hpp"
 #include "volume_loader_raw.hpp"
 #include "transfer_function.hpp"
+#include "data_types_fwd.hpp"
 
+#include <vector>
+#include <iostream>
 
 int main(int argc, char* argv[])
 {
@@ -11,9 +14,16 @@ int main(int argc, char* argv[])
 
   Volume_loader_raw loader;
   glm::ivec3 vol_dimensions = loader.get_dimensions(file_string);
-  char* volume_data = loader.load_volume(file_string);
+  volume_data_type volume_data = loader.load_volume(file_string);
+    
 
-  delete volume_data;
+  Transfer_function transfer_func;
+
+  //transfer_func.add(0.3f, glm::vec4(0.3, 0.0, 0.0, 0.0));
+  transfer_func.add(1.0f, glm::vec4(1.0, 0.0, 0.0, 0.5));
+  //transfer_func.add(0.7f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+
+  image_data_type transfer_function_buffer = transfer_func.get_RGBA_transfer_function_buffer();
 
   while (!win.shouldClose()) {
     if (win.isKeyPressed(GLFW_KEY_ESCAPE)) {
