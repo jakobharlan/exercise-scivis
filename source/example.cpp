@@ -6,7 +6,7 @@
 int main(int argc, char* argv[])
 {
   Window win(glm::ivec2(800,800));
-  
+
   std::string file_string = "../../../data/head_w256_h256_d225_c1_b8.raw";
 
   Volume_loader_raw loader;
@@ -41,6 +41,5 @@ int main(int argc, char* argv[])
     win.update();
   }
 
-  
   return 0;
 }
