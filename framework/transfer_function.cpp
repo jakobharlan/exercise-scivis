@@ -13,8 +13,8 @@ const T clamp(const T val, const T min, const T max)
 
 template<typename T>
 const T weight(const float w, const T a, const T b)
-{
-  return ((1.0  - w) * a + w * b);
+{    
+    return ((1.0 - w) * a + w * b);
 }
 
 } // namespace helper
@@ -40,22 +40,16 @@ Transfer_function::add(unsigned data_value, glm::vec4 color)
   m_piecewise_container.insert(element_type(data_value, color));
 }
 
-char* Transfer_function::get_RGBA_transfer_function_buffer() const
+image_data_type Transfer_function::get_RGBA_transfer_function_buffer() const
 {
   size_t buffer_size = 255 * 4; // width =255 height = 1 channels = 4 ///TODO: maybe dont hardcode?
-  char* transfer_function_buffer = new char[buffer_size];
+  image_data_type transfer_function_buffer;
+  transfer_function_buffer.resize(buffer_size);
 
-  unsigned data_value_f = 0;
-  unsigned data_value_b = 255;
+  unsigned data_value_f = 0u;
+  unsigned data_value_b = 255u;
   glm::vec4 color_f = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-  glm::vec4 color_b = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-  if (m_piecewise_container.size() == 0) {
-    data_value_f = 0;
-    data_value_b = 255;
-    color_f = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-    color_b = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
-  }
+  glm::vec4 color_b = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
   unsigned  e_value;
   glm::vec4 e_color;
@@ -70,32 +64,44 @@ char* Transfer_function::get_RGBA_transfer_function_buffer() const
     unsigned data_value_d = data_value_b - data_value_f;
     float step_size = 1.0 / static_cast<float>(data_value_d);
     float step = 0.0;
+        
+    for (unsigned i = data_value_f; i != data_value_b; ++i) {
 
-    for (unsigned i = data_value_f; i != data_value_b + 1; ++i) {
-      transfer_function_buffer[i * 4]     = static_cast<unsigned>((helper::weight(step, color_f.r, color_b.r) * 255.0f));
-      transfer_function_buffer[i * 4 + 1] = static_cast<unsigned>((helper::weight(step, color_f.g, color_b.g) * 255.0f));
-      transfer_function_buffer[i * 4 + 2] = static_cast<unsigned>((helper::weight(step, color_f.b, color_b.b) * 255.0f));
-      transfer_function_buffer[i * 4 + 3] = static_cast<unsigned>((helper::weight(step, color_f.a, color_b.a) * 255.0f));
+      transfer_function_buffer[i * 4]     = static_cast<unsigned char>(helper::weight(step, color_f.r, color_b.r) * 255.0f);
+      transfer_function_buffer[i * 4 + 1] = static_cast<unsigned char>(helper::weight(step, color_f.g, color_b.g) * 255.0f);
+      transfer_function_buffer[i * 4 + 2] = static_cast<unsigned char>(helper::weight(step, color_f.b, color_b.b) * 255.0f);
+      transfer_function_buffer[i * 4 + 3] = static_cast<unsigned char>(helper::weight(step, color_f.a, color_b.a) * 255.0f);
       step += step_size;
+
+      std::cout << (unsigned int)transfer_function_buffer[i * 4] << std::endl;
     }
+
     data_value_f = data_value_b;
     color_f = color_b;
   }
 
   // fill TF
+  data_value_b = 255u;
+  color_b = glm::vec4(0.0f, 0.0f, 0.0f, 0.0f);
+
   if (data_value_f != data_value_b) {
     unsigned data_value_d = data_value_b - data_value_f;
     float step_size = 1.0 / static_cast<float>(data_value_d);
     float step = 0.0;
-
-    data_value_b = 255;
-    for (unsigned i = data_value_f; i != data_value_b + 1; ++i) {
-      transfer_function_buffer[i * 4]     = static_cast<unsigned>((helper::weight(step, color_f.r, color_b.r) * 255.0f));
-      transfer_function_buffer[i * 4 + 1] = static_cast<unsigned>((helper::weight(step, color_f.g, color_b.g) * 255.0f));
-      transfer_function_buffer[i * 4 + 2] = static_cast<unsigned>((helper::weight(step, color_f.b, color_b.b) * 255.0f));
-      transfer_function_buffer[i * 4 + 3] = static_cast<unsigned>((helper::weight(step, color_f.a, color_b.a) * 255.0f));
+    
+    for (unsigned i = data_value_f; i != data_value_b; ++i) {
+      transfer_function_buffer[i * 4]     = static_cast<unsigned char>(helper::weight(step, color_f.r, color_b.r) * 255.0f);
+      transfer_function_buffer[i * 4 + 1] = static_cast<unsigned char>(helper::weight(step, color_f.g, color_b.g) * 255.0f);
+      transfer_function_buffer[i * 4 + 2] = static_cast<unsigned char>(helper::weight(step, color_f.b, color_b.b) * 255.0f);
+      transfer_function_buffer[i * 4 + 3] = static_cast<unsigned char>(helper::weight(step, color_f.a, color_b.a) * 255.0f);
       step += step_size;
     }
   }
+
   return transfer_function_buffer;
+}
+
+void
+Transfer_function::reset(){
+    m_piecewise_container.clear();
 }
