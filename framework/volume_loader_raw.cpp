@@ -3,10 +3,13 @@
 #include <iostream>
 #include <fstream>
 
-char* Volume_loader_raw::load_volume(std::string filepath)
+volume_data_type
+Volume_loader_raw::load_volume(std::string filepath)
 {
   std::ifstream volume_file;
   volume_file.open(filepath, std::ios::in | std::ios::binary);
+
+  volume_data_type data;
 
   if (volume_file.is_open()) {
     glm::ivec3 vol_dim = get_dimensions(filepath);
@@ -20,10 +23,11 @@ char* Volume_loader_raw::load_volume(std::string filepath)
                       * channels
                       * byte_per_channel;
 
-    char* data = new char[data_size];
+    
+    data.resize(data_size);
 
     volume_file.seekg(0, std::ios::beg);
-    volume_file.read(data, data_size);
+    volume_file.read((char*)&data.front(), data_size);
     volume_file.close();
 
     std::cout << "File " << filepath << " successfully loaded" << std::endl;
@@ -32,12 +36,12 @@ char* Volume_loader_raw::load_volume(std::string filepath)
   } else {
     std::cerr << "File " << filepath << " doesnt exist! Check Filepath!" << std::endl;
     assert(0);
-    return 0;
+    return data;
   }
 
   //never reached
   assert(0);
-  return 0;
+  return data;
 }
 
 glm::ivec3 Volume_loader_raw::get_dimensions(const std::string filepath) const

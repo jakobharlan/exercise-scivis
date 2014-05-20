@@ -1,11 +1,11 @@
 #ifndef TRANSFER_FUNCTION_HPP
 #define TRANSFER_FUNCTION_HPP
 
-#include <array>
+#include "data_types_fwd.hpp"
+
 #include <string>
 #include <map>
 
-#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
 class Transfer_function
@@ -21,7 +21,9 @@ public:
   void add(float, glm::vec4);
   void add(unsigned, glm::vec4);
 
-  char* get_RGBA_transfer_function_buffer() const;
+  void reset();
+
+  image_data_type get_RGBA_transfer_function_buffer() const;
 
 private:
   container_type m_piecewise_container;
