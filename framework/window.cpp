@@ -127,16 +127,6 @@ void Window::update()
 {
   glfwSwapBuffers(m_window);
   glfwPollEvents();
-
-  // prepare next frame
-  glViewport(0, 0, m_size.x, m_size.y);
-  glClear(GL_COLOR_BUFFER_BIT);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrtho(0.0,1.0,0.0,1.0,0.01,100.0);
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  glTranslatef(0.0, 0.0, -100.0);
 }
 
 glm::ivec2 Window::windowSize() const
