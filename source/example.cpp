@@ -1,8 +1,19 @@
 #include "fensterchen.hpp"
+#include "volume_loader_raw.hpp"
+#include "transfer_function.hpp"
+
 
 int main(int argc, char* argv[])
 {
   Window win(glm::ivec2(800,800));
+  
+  std::string file_string = "../../../data/head_w256_h256_d225_c1_b8.raw";
+
+  Volume_loader_raw loader;
+  glm::ivec3 vol_dimensions = loader.get_dimensions(file_string);
+  char* volume_data = loader.load_volume(file_string);
+
+  delete volume_data;
 
   while (!win.shouldClose()) {
     if (win.isKeyPressed(GLFW_KEY_ESCAPE)) {
@@ -30,5 +41,6 @@ int main(int argc, char* argv[])
     win.update();
   }
 
+  
   return 0;
 }
