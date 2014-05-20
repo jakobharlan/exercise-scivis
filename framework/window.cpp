@@ -42,6 +42,8 @@ Window::Window(glm::ivec2 const& windowsize)
     glLineWidth(2.0f);
     glEnable(GL_LINE_SMOOTH);
     glClearColor(1.0f,1.0f,1.0f,1.0f);
+
+    glEnable(GL_DEPTH_TEST);
   }
 }
 
