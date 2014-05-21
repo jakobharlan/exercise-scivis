@@ -16,6 +16,7 @@
 #include <fstream>
 #include <streambuf>
 #include <cerrno>
+#include <iostream>
 
 // Read a small text file.
 inline std::string readFile(std::string const& file)
@@ -28,5 +29,8 @@ inline std::string readFile(std::string const& file)
   }
   throw (errno);
 }
+
+GLuint loadShader(GLenum type, std::string const& s);
+GLuint createProgram(std::string const& v, std::string const& f);
 
 #endif // #ifndef UTILS_HPP
