@@ -1,5 +1,14 @@
-#ifndef BUW_COLOR_HPP
-#define BUW_COLOR_HPP
+#ifndef FENSTERCHEN_COLOR_HPP
+#define FENSTERCHEN_COLOR_HPP
+
+// -----------------------------------------------------------------------------
+// Copyright  : (C) 2014 Andreas-C. Bernstein
+// License    : MIT (see the file LICENSE)
+// Maintainer : Andreas-C. Bernstein <andreas.bernstein@uni-weimar.de>
+// Stability  : experimental
+//
+// Color
+// -----------------------------------------------------------------------------
 
 struct Color
 {
@@ -9,4 +18,4 @@ struct Color
   float b_;
 };
 
-#endif //#define BUW_COLOR_HPP
+#endif //#define FENSTERCHEN_COLOR_HPP

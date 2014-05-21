@@ -1,6 +1,15 @@
 #ifndef CUBE_HPP
 #define CUBE_HPP
 
+// -----------------------------------------------------------------------------
+// Copyright  : (C) 2014 Andreas-C. Bernstein
+// License    : MIT (see the file LICENSE)
+// Maintainer : Andreas-C. Bernstein <andreas.bernstein@uni-weimar.de>
+// Stability  : experimental
+//
+// Cube
+// -----------------------------------------------------------------------------
+
 #define GLM_FORCE_RADIANS
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>

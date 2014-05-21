@@ -1,3 +1,12 @@
+// -----------------------------------------------------------------------------
+// Copyright  : (C) 2014 Andreas-C. Bernstein
+// License    : MIT (see the file LICENSE)
+// Maintainer : Andreas-C. Bernstein <andreas.bernstein@uni-weimar.de>
+// Stability  : experimental
+//
+// Cube
+// -----------------------------------------------------------------------------
+
 #include "cube.hpp"
 #include <GL/glew.h>
 #include <GL/gl.h>
