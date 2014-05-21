@@ -29,15 +29,22 @@ GLuint loadShaders(std::string const& vs, std::string const& fs)
   return createProgram(v,f);
 }
 
+bool reload_shader_pressed = false;
+bool show_transfer_function_pressed = false;
+
 int main(int argc, char* argv[])
 {
-  Window win(glm::ivec2(800,800));
+  Window win(glm::ivec2(1200,800));
 
   std::string file_string = "../../../data/head_w256_h256_d225_c1_b8.raw";
 
   Volume_loader_raw loader;
   glm::ivec3 vol_dimensions = loader.get_dimensions(file_string);
   auto volume_data = loader.load_volume(file_string);
+
+  Transfer_function transfer_fun;
+  
+  transfer_fun.add(1.0f, glm::vec4(1.0, 0.0, 0.0, 1.0));
 
   Cube cube;
 
@@ -54,18 +61,25 @@ int main(int argc, char* argv[])
     }
 
     if (win.isKeyPressed(GLFW_KEY_R)) {
-      GLuint newProgram(0);
-      try {
-        std::cout << "Reload shaders" << std::endl;
-        newProgram = loadShaders(g_file_vertex_shader, g_file_fragment_shader);
-      } catch (std::logic_error& e) {
-        std::cerr << e.what() << std::endl;
-        newProgram = 0;
-      }
-      if (0 != newProgram) {
-        glDeleteProgram(program);
-        program = newProgram;
-      }
+        if (reload_shader_pressed != true){
+            GLuint newProgram(0);
+            try {
+                std::cout << "Reload shaders" << std::endl;
+                newProgram = loadShaders(g_file_vertex_shader, g_file_fragment_shader);
+            }
+            catch (std::logic_error& e) {
+                std::cerr << e.what() << std::endl;
+                newProgram = 0;
+            }
+            if (0 != newProgram) {
+                glDeleteProgram(program);
+                program = newProgram;
+            }
+            reload_shader_pressed = true;
+        }
+    }
+    else{
+        reload_shader_pressed = false;
     }
 
     auto t = win.getTime();
@@ -74,7 +88,7 @@ int main(int argc, char* argv[])
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     float fovy = 90.0f;
-    float aspect = 1.0f;
+    float aspect = (float)size.x / (float)size.y;
     float zNear = 0.025, zFar = 100;
     glm::mat4 projection = glm::perspective(fovy, aspect, zNear, zFar);
     auto  xlate = glm::translate(glm::vec3(0.0f,0.0f, -3.0f));
