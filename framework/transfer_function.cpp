@@ -117,9 +117,7 @@ image_data_type Transfer_function::get_RGBA_transfer_function_buffer() const
       transfer_function_buffer[i * 4 + 1] = static_cast<unsigned char>(helper::weight(step, color_f.g, color_b.g) * 255.0f);
       transfer_function_buffer[i * 4 + 2] = static_cast<unsigned char>(helper::weight(step, color_f.b, color_b.b) * 255.0f);
       transfer_function_buffer[i * 4 + 3] = static_cast<unsigned char>(helper::weight(step, color_f.a, color_b.a) * 255.0f);
-      step += step_size;
-
-      std::cout << (unsigned int)transfer_function_buffer[i * 4] << std::endl;
+      step += step_size;     
     }
 
     data_value_f = data_value_b;
@@ -275,7 +273,7 @@ void Transfer_function::update_and_draw()
     }
     
 
-    glm::mat4 projection = glm::ortho(-0.5f, 10.5f, -0.5f, 10.5f);    
+    glm::mat4 projection = glm::ortho(-0.5f, 3.5f, -0.5f, 5.5f);    
     glm::mat4 view = glm::mat4();
     
     glUseProgram(m_program_id);

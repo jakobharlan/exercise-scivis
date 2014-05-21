@@ -43,14 +43,20 @@ int main(int argc, char* argv[])
   glm::ivec3 vol_dimensions = loader.get_dimensions(file_string);
   auto volume_data = loader.load_volume(file_string);
 
+  glActiveTexture(GL_TEXTURE0);
+  createTexture3D(vol_dimensions.x, vol_dimensions.y, vol_dimensions.z, (char*)&volume_data[0]);
+
   Transfer_function transfer_fun;
   
   transfer_fun.add(0.1f, glm::vec4(0.0, 0.0, 0.0, 0.0));
   transfer_fun.add(0.2f, glm::vec4(0.0, 0.0, 1.0, 0.2));
-  transfer_fun.add(0.3f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  transfer_fun.add(0.6f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.3f, glm::vec4(1.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.6f, glm::vec4(0.0, 1.0, 0.0, 0.0));
   transfer_fun.add(0.8f, glm::vec4(0.7, 1.0, 0.8, 0.5));
   transfer_fun.add(0.9f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+
+  glActiveTexture(GL_TEXTURE1);
+  createTexture2D(255u, 1u, (char*)&transfer_fun.get_RGBA_transfer_function_buffer()[0]);
   
   Cube cube;
 
@@ -115,6 +121,9 @@ int main(int argc, char* argv[])
     auto view = glm::lookAt(eye, target, up);
 
     glUseProgram(program);
+    glUniform1i(glGetUniformLocation(program, "volume_texture"), 0);
+    glUniform1i(glGetUniformLocation(program, "transfer_texture"), 1);
+
     glUniformMatrix4fv(glGetUniformLocation(program, "Projection"), 1, GL_FALSE,
         glm::value_ptr(projection));
     glUniformMatrix4fv(glGetUniformLocation(program, "Modelview"), 1, GL_FALSE,
