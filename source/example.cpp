@@ -29,8 +29,9 @@ GLuint loadShaders(std::string const& vs, std::string const& fs)
   return createProgram(v,f);
 }
 
-bool reload_shader_pressed = false;
-bool show_transfer_function_pressed = false;
+bool reload_shader_pressed              = false;
+bool show_transfer_function             = false;
+bool show_transfer_function_pressed     = false;
 
 int main(int argc, char* argv[])
 {
@@ -44,8 +45,13 @@ int main(int argc, char* argv[])
 
   Transfer_function transfer_fun;
   
-  transfer_fun.add(1.0f, glm::vec4(1.0, 0.0, 0.0, 1.0));
-
+  transfer_fun.add(0.1f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.2f, glm::vec4(0.0, 0.0, 1.0, 0.2));
+  transfer_fun.add(0.3f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.6f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.8f, glm::vec4(0.7, 1.0, 0.8, 0.5));
+  transfer_fun.add(0.9f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  
   Cube cube;
 
   GLuint program(0);
@@ -82,6 +88,16 @@ int main(int argc, char* argv[])
         reload_shader_pressed = false;
     }
 
+    if (win.isKeyPressed(GLFW_KEY_T)){
+        if (!show_transfer_function_pressed){
+            show_transfer_function = !show_transfer_function;
+        }        
+        show_transfer_function_pressed = true;
+    }
+    else{
+        show_transfer_function_pressed = false;
+    }
+
     auto t = win.getTime();
     auto size = win.windowSize();
     glViewport(0, 0, size.x, size.y);
@@ -105,6 +121,9 @@ int main(int argc, char* argv[])
         glm::value_ptr(view));
     cube.draw();
     glUseProgram(0);
+
+    if (show_transfer_function)
+        transfer_fun.update_and_draw();
 
     win.update();
   }

@@ -6,11 +6,17 @@
 #include <string>
 #include <map>
 
+#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
 class Transfer_function
 {
 public:
+    struct Vertex
+    {
+        glm::vec3 position;
+        glm::vec3 color;
+    };
   typedef std::pair<unsigned, glm::vec4> element_type;
   typedef std::map<unsigned, glm::vec4>  container_type;
 
@@ -23,10 +29,19 @@ public:
 
   void reset();
 
-  image_data_type get_RGBA_transfer_function_buffer() const;
+  image_data_type   get_RGBA_transfer_function_buffer() const;
+  void              update_and_draw();
 
 private:
-  container_type m_piecewise_container;
+    void update_vbo();
+
+private:
+  container_type    m_piecewise_container;
+  
+  unsigned int      m_program_id;
+  unsigned int      m_vao;
+    
+  bool              m_dirty;
 };
 
 #endif // define TRANSFER_FUNCTION_HPP

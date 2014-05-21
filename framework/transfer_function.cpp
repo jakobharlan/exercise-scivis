@@ -2,6 +2,47 @@
 
 #include <iostream>
 #include <fstream>
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <vector>
+
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "utils.hpp"
+
+const char* vertex_shader = "\
+                            #version 140\n\
+#extension GL_ARB_shading_language_420pack : require\n\
+#extension GL_ARB_explicit_attrib_location : require\n\
+                                                        \n\
+layout(location = 0) in vec3 position;\n\
+layout(location = 1) in vec3 color;\n\
+out vec3 vColor;\n\
+uniform mat4 Projection;\n\
+uniform mat4 Modelview;\n\
+\n\
+void main()\n\
+{\n\
+    vColor = color;\n\
+    vec4 Position = vec4(position, 1.0);\n\
+    gl_Position = Projection * Modelview * Position;\n\
+}\n\
+";
+
+const char* fragment_shader = "\
+                              #version 140\n\
+#extension GL_ARB_shading_language_420pack : require\n\
+#extension GL_ARB_explicit_attrib_location : require\n\
+                                                            \n\
+in vec3 vColor;\n\
+layout(location = 0) out vec4 FragColor;\n\
+\n\
+void main()\n\
+{\n\
+    FragColor = vec4(vColor, 1.0);\n\
+}\n\
+";
 
 namespace helper {
 
@@ -20,8 +61,13 @@ const T weight(const float w, const T a, const T b)
 } // namespace helper
 
 Transfer_function::Transfer_function()
-  : m_piecewise_container()
-{}
+  : m_piecewise_container(),
+  m_program_id(0),
+  m_vao(0),
+  m_dirty(true)
+{
+    m_program_id = createProgram(vertex_shader, fragment_shader);
+}
 
 void Transfer_function::add(float data_value, glm::vec4 color)
 {
@@ -104,4 +150,145 @@ image_data_type Transfer_function::get_RGBA_transfer_function_buffer() const
 void
 Transfer_function::reset(){
     m_piecewise_container.clear();
+    m_dirty = true;
+}
+
+void
+Transfer_function::update_vbo(){
+
+    std::vector<Transfer_function::Vertex> cubeVertices;
+
+    Transfer_function::Vertex v_rb;
+    Transfer_function::Vertex v_gb;
+    Transfer_function::Vertex v_bb;
+    Transfer_function::Vertex v_ab;
+
+    Transfer_function::Vertex v_re;
+    Transfer_function::Vertex v_ge;
+    Transfer_function::Vertex v_be;
+    Transfer_function::Vertex v_ae;
+
+    v_rb.position = glm::vec3(0.0, 0.0, 0.0f);
+    v_rb.color = glm::vec3(1.0f, 0.0f, 0.0f);
+    v_rb.position = glm::vec3(0.0, 0.0, 0.0f);
+    v_gb.color = glm::vec3(0.0f, 1.0f, 0.0f);
+    v_rb.position = glm::vec3(0.0, 0.0, 0.0f);
+    v_bb.color = glm::vec3(0.0f, 0.0f, 1.0f);
+    v_rb.position = glm::vec3(0.0, 0.0, 0.0f);
+    v_ab.color = glm::vec3(1.0f, 1.0f, 1.0f);
+    
+    for (auto e = m_piecewise_container.begin(); e != m_piecewise_container.end(); ++e) {
+        
+        v_re.position = glm::vec3((float)e->first / 255.0f, (float)e->second.r, 0.0f);
+        v_re.color = glm::vec3(1.0f, 0.0f, 0.0f);
+        v_ge.position = glm::vec3((float)e->first / 255.0f, e->second.g, 0.0f);
+        v_ge.color = glm::vec3(0.0f, 1.0f, 0.0f);
+        v_be.position = glm::vec3((float)e->first / 255.0f, e->second.b, 0.0f);
+        v_be.color = glm::vec3(0.0f, 0.0f, 1.0f);
+        v_ae.position = glm::vec3((float)e->first / 255.0f, e->second.a, 0.0f);
+        v_ae.color = glm::vec3(0.2f, 0.2f, 0.2f);
+
+        cubeVertices.push_back(v_rb);
+        cubeVertices.push_back(v_re);
+
+        cubeVertices.push_back(v_gb);
+        cubeVertices.push_back(v_ge);
+
+        cubeVertices.push_back(v_bb);
+        cubeVertices.push_back(v_be);
+
+        cubeVertices.push_back(v_ab);
+        cubeVertices.push_back(v_ae);
+                
+        v_rb.position   = v_re.position;
+        v_rb.color      = v_re.color;
+        v_gb.position   = v_ge.position;
+        v_gb.color      = v_ge.color;
+        v_bb.position   = v_be.position;
+        v_bb.color      = v_be.color;
+        v_ab.position   = v_ae.position;
+        v_ab.color      = v_ae.color;
+        
+    }
+
+    v_re.position = glm::vec3(1.0, 0.0, 0.0f);
+    v_re.color = glm::vec3(1.0f, 0.0f, 0.0f);
+    v_ge.position = glm::vec3(1.0, 0.0, 0.0f);
+    v_ge.color = glm::vec3(0.0f, 1.0f, 0.0f);
+    v_be.position = glm::vec3(1.0, 0.0, 0.0f);
+    v_be.color = glm::vec3(0.0f, 0.0f, 1.0f);
+    v_ae.position = glm::vec3(1.0, 0.0, 0.0f);
+    v_ae.color = glm::vec3(1.0f, 1.0f, 1.0f);
+
+    if (m_piecewise_container.size() == 0){
+
+        cubeVertices.push_back(v_rb);
+        cubeVertices.push_back(v_re);
+
+        cubeVertices.push_back(v_gb);
+        cubeVertices.push_back(v_ge);
+
+        cubeVertices.push_back(v_bb);
+        cubeVertices.push_back(v_be);
+
+        cubeVertices.push_back(v_ab);
+        cubeVertices.push_back(v_ae);
+    }
+    else{
+        cubeVertices.push_back(v_re);
+
+        cubeVertices.push_back(v_ge);
+
+        cubeVertices.push_back(v_be);
+
+        cubeVertices.push_back(v_ae);
+    }
+
+    unsigned int i = 0;
+
+    if (m_vao)
+        glDeleteBuffers(1, &m_vao);
+
+    glGenVertexArrays(1, &m_vao);
+    glBindVertexArray(m_vao);
+
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float)* 6 * cubeVertices.size()
+        , cubeVertices.data(), GL_STATIC_DRAW);
+
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), nullptr);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_TRUE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glBindVertexArray(0);
+
+}
+
+void Transfer_function::update_and_draw()
+{
+    if (m_dirty){
+        update_vbo();
+        m_dirty = false;
+    }
+    
+
+    glm::mat4 projection = glm::ortho(-0.5f, 10.5f, -0.5f, 10.5f);    
+    glm::mat4 view = glm::mat4();
+    
+    glUseProgram(m_program_id);
+    glUniformMatrix4fv(glGetUniformLocation(m_program_id, "Projection"), 1, GL_FALSE,
+        glm::value_ptr(projection));
+    glUniformMatrix4fv(glGetUniformLocation(m_program_id, "Modelview"), 1, GL_FALSE,
+        glm::value_ptr(view));
+    
+    glBindVertexArray(m_vao);
+    glDrawArrays(GL_LINES, 0, m_piecewise_container.size() * 2 * 6);
+    glBindVertexArray(0);
+
+    glUseProgram(0);
+
+
 }
