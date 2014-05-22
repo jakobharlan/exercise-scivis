@@ -184,7 +184,7 @@ Transfer_function::update_vbo(){
         v_be.position = glm::vec3((float)e->first / 255.0f, e->second.b, 0.0f);
         v_be.color = glm::vec3(0.0f, 0.0f, 1.0f);
         v_ae.position = glm::vec3((float)e->first / 255.0f, e->second.a, 0.0f);
-        v_ae.color = glm::vec3(0.2f, 0.2f, 0.2f);
+        v_ae.color = glm::vec3(0.4f, 0.4f, 0.4f);
 
         cubeVertices.push_back(v_rb);
         cubeVertices.push_back(v_re);

@@ -24,6 +24,7 @@ public:
   };
 
   Cube();
+  Cube(glm::vec3 min, glm::vec3 max);
   void draw() const;
 
 private:

@@ -4,13 +4,15 @@
 
 layout(location = 0) in vec3 position;
 layout(location = 1) in vec2 texCoord;
-out vec3 vTexCoord;
+
 uniform mat4 Projection;
 uniform mat4 Modelview;
 
+out vec3 ray_entry_position;
+
 void main()
 {
-  vTexCoord = 0.5 + 0.5 * position;
+  ray_entry_position = position;
   vec4 Position = vec4(position, 1.0);
   gl_Position = Projection * Modelview * Position;
 }
