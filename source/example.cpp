@@ -12,6 +12,7 @@
 #include <fstream>
 #include <algorithm>
 #include <stdexcept>
+#define GLM_FORCE_RADIANS
 
 ///GLM INCLUDES
 #include <glm/gtc/type_ptr.hpp>
