@@ -66,6 +66,9 @@ public:
   void stop();
   void update();
   inline bool isKeyPressed(int key) const { return m_keypressed[key]; }
+  inline bool isButtonPressed(MouseButton b) const {
+    return m_mouseButtonFlags & b;
+  }
   glm::ivec2 windowSize() const;
   float getTime() const;
 
