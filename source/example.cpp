@@ -49,7 +49,7 @@ glm::vec3   g_light_color                   = glm::vec3(1.0f, 1.0f, 1.0f);
 int main(int argc, char* argv[])
 {
   Window win(glm::ivec2(1200,800));
-  
+
   ///SETTING TRANSFERFUNCTION HERE
   Transfer_function transfer_fun;
 
@@ -65,17 +65,17 @@ int main(int argc, char* argv[])
   unsigned max_dim = std::max(std::max(vol_dimensions.x,
                             vol_dimensions.y),
                             vol_dimensions.z);
-  
+
   glm::vec3 max_volume_bounds = glm::vec3(vol_dimensions) / glm::vec3(max_dim);
-    
+
   auto volume_data = loader.load_volume(g_file_string);
-    
+
   glActiveTexture(GL_TEXTURE0);
   createTexture3D(vol_dimensions.x, vol_dimensions.y, vol_dimensions.z, (char*)&volume_data[0]);
-      
+
   glActiveTexture(GL_TEXTURE1);
   createTexture2D(255u, 1u, (char*)&transfer_fun.get_RGBA_transfer_function_buffer()[0]);
-  
+
   Cube cube(glm::vec3(0.0, 0.0, 0.0), max_volume_bounds);
 
   GLuint program(0);
@@ -107,18 +107,16 @@ int main(int argc, char* argv[])
             }
             g_reload_shader_pressed = true;
         }
-    }
-    else{
+    } else {
         g_reload_shader_pressed = false;
     }
 
     if (win.isKeyPressed(GLFW_KEY_T)){
         if (!g_show_transfer_function_pressed){
             g_show_transfer_function = !g_show_transfer_function;
-        }        
+        }
         g_show_transfer_function_pressed = true;
-    }
-    else{
+    } else {
         g_show_transfer_function_pressed = false;
     }
 
@@ -144,15 +142,15 @@ int main(int argc, char* argv[])
 
     glm::vec4 camera_translate = glm::column(glm::inverse(model_view), 3);
     glm::vec3 camera_location = glm::vec3(camera_translate.x, camera_translate.y, camera_translate.z);
-    
+
     camera_location /= glm::vec3(camera_translate.w);
 
     glUseProgram(program);
-    
+
     glUniform1i(glGetUniformLocation(program, "volume_texture"), 0);
     glUniform1i(glGetUniformLocation(program, "transfer_texture"), 1);
 
-    glUniform3fv(glGetUniformLocation(program, "camera_location"), 1, 
+    glUniform3fv(glGetUniformLocation(program, "camera_location"), 1,
         glm::value_ptr(camera_location));
     glUniform1f(glGetUniformLocation(program, "sampling_distance"), g_sampling_distance);
     glUniform3fv(glGetUniformLocation(program, "max_bounds"), 1,
