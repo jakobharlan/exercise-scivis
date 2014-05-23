@@ -42,10 +42,6 @@ GLuint loadShaders(std::string const& vs, std::string const& fs)
 bool g_reload_shader_pressed                = false;
 bool g_show_transfer_function               = false;
 bool g_show_transfer_function_pressed       = false;
-glm::ivec3 g_mouse_button_pressed{0,0,0};
-glm::vec2  g_mouse{0.0f,0.0f};
-glm::vec2  g_lastMouse{0.0f,0.0f};
-Turntable  g_turntable;
 
 ///SETUP VOLUME RAYCASTER HERE
 std::string g_file_string                   = "../../../data/head_w256_h256_d225_c1_b8.raw";
