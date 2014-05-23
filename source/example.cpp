@@ -42,6 +42,7 @@ GLuint loadShaders(std::string const& vs, std::string const& fs)
 bool g_reload_shader_pressed                = false;
 bool g_show_transfer_function               = false;
 bool g_show_transfer_function_pressed       = false;
+Turntable  g_turntable;
 
 ///SETUP VOLUME RAYCASTER HERE
 std::string g_file_string                   = "../../../data/head_w256_h256_d225_c1_b8.raw";
@@ -52,10 +53,10 @@ glm::vec3   g_light_color                   = glm::vec3(1.0f, 1.0f, 1.0f);
 struct Manipulator
 {
   Manipulator()
-    : m_mouse_button_pressed{0,0,0}
+    : m_turntable{}
+    , m_mouse_button_pressed{0,0,0}
     , m_mouse{0.0f,0.0f}
     , m_lastMouse{0.0f,0.0f}
-    , m_turntable{}
     {}
 
   glm::mat4 matrix(Window const& win)
@@ -92,10 +93,11 @@ struct Manipulator
     return m_turntable.matrix();
   }
 
+private:
+  Turntable  m_turntable;
   glm::ivec3 m_mouse_button_pressed;
   glm::vec2  m_mouse;
   glm::vec2  m_lastMouse;
-  Turntable  m_turntable;
 };
 
 int main(int argc, char* argv[])
@@ -193,6 +195,7 @@ int main(int argc, char* argv[])
     glm::vec3 up(0.0f, 1.0f, 0.0f);
     auto model_view = glm::lookAt(eye, target, up)
                     * manipulator.matrix(win)
+                    // rotate head upright
                     * glm::rotate(0.5f*float(M_PI), glm::vec3(0.0f,1.0f,0.0f))
                     * glm::rotate(0.5f*float(M_PI), glm::vec3(1.0f,0.0f,0.0f))
                     * glm::translate(translate)
