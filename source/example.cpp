@@ -26,8 +26,8 @@
 #include "transfer_function.hpp"
 #include "utils.hpp"
 
-const std::string g_file_vertex_shader("../../../data/volume.vert");
-const std::string g_file_fragment_shader("../../../data/volume.frag");
+const std::string g_file_vertex_shader("../../../framework/shader/volume.vert");
+const std::string g_file_fragment_shader("../../../framework/shader/volume.frag");
 
 GLuint loadShaders(std::string const& vs, std::string const& fs)
 {
