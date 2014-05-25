@@ -195,6 +195,9 @@ int main(int argc, char* argv[])
     glm::vec3 eye = glm::vec3(0.0f, 0.0f, 2.0f);
     glm::vec3 target = glm::vec3(0.0f);
     glm::vec3 up(0.0f, 1.0f, 0.0f);
+
+    float M_PI = 0.0f;
+
     auto model_view = glm::lookAt(eye, target, up)
                     * manipulator.matrix(win)
                     * glm::rotate(0.5f*float(M_PI), glm::vec3(0.0f,1.0f,0.0f))
