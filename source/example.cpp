@@ -16,6 +16,9 @@
 #include <cmath>
 #define GLM_FORCE_RADIANS
 
+
+const float M_PI = 3.14f;
+
 ///GLM INCLUDES
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -29,8 +32,8 @@
 #include <utils.hpp>
 #include <turntable.hpp>
 
-const std::string g_file_vertex_shader("../../../data/volume.vert");
-const std::string g_file_fragment_shader("../../../data/volume.frag");
+const std::string g_file_vertex_shader("../../../framework/shader/volume.vert");
+const std::string g_file_fragment_shader("../../../framework/shader/volume.frag");
 
 GLuint loadShaders(std::string const& vs, std::string const& fs)
 {
@@ -193,6 +196,7 @@ int main(int argc, char* argv[])
     glm::vec3 eye = glm::vec3(0.0f, 0.0f, 2.0f);
     glm::vec3 target = glm::vec3(0.0f);
     glm::vec3 up(0.0f, 1.0f, 0.0f);
+
     auto model_view = glm::lookAt(eye, target, up)
                     * manipulator.matrix(win)
                     // rotate head upright
