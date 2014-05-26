@@ -32,8 +32,8 @@ const float M_PI = 3.14f;
 #include <utils.hpp>
 #include <turntable.hpp>
 
-const std::string g_file_vertex_shader("../../../framework/shader/volume.vert");
-const std::string g_file_fragment_shader("../../../framework/shader/volume.frag");
+const std::string g_file_vertex_shader("../../../source/shader/volume.vert");
+const std::string g_file_fragment_shader("../../../source/shader/volume.frag");
 
 GLuint loadShaders(std::string const& vs, std::string const& fs)
 {
@@ -51,8 +51,13 @@ glm::vec2  g_lastMouse{0.0f,0.0f};
 Turntable  g_turntable;
 
 ///SETUP VOLUME RAYCASTER HERE
+// set the volume file
 std::string g_file_string                   = "../../../data/head_w256_h256_d225_c1_b8.raw";
+
+// set the sampling distance for the ray traversal
 float       g_sampling_distance             = 0.001f;
+
+// set the light position and color for shading
 glm::vec3   g_light_pos                     = glm::vec3(10.0, 10.0, 0.0);
 glm::vec3   g_light_color                   = glm::vec3(1.0f, 1.0f, 1.0f);
 
@@ -106,20 +111,25 @@ struct Manipulator
 };
 
 int main(int argc, char* argv[])
-{
-  Window win(glm::ivec2(1200,800));
-
-  Manipulator manipulator;
-
-  ///SETTING TRANSFERFUNCTION HERE
+{  
+  // initialize the transfer function
   Transfer_function transfer_fun;
+  
+  // first clear possible old values
+  transfer_fun.reset();
 
-  transfer_fun.add(0.0f, glm::vec4(0.0, 1.0, 0.0, 0.0));
-  transfer_fun.add(0.2f, glm::vec4(0.2, 0.0, 0.8, 0.5));
-  transfer_fun.add(0.5f, glm::vec4(0.5, 0.0, 0.0, 0.0));
+  // the add_stop method takes:
+  //  - unsigned char or float - data value     (0.0 .. 1.0) or (0..255)
+  //  - vec4f         - color and alpha value   (0.0 .. 1.0) per channel
+  transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
   transfer_fun.add(1.0f, glm::vec4(1.0, 1.0, 1.0, 1.0));
 
-  ///NOTHING TODO UNTIL HERE
+
+
+  ///NOTHING TODO UNTIL HERE-------------------------------------------------------------------------------
+  
+  Window win(glm::ivec2(1200, 800));
+
   Volume_loader_raw loader;
   glm::ivec3 vol_dimensions = loader.get_dimensions(g_file_string);
 
@@ -127,7 +137,7 @@ int main(int argc, char* argv[])
                             vol_dimensions.y),
                             vol_dimensions.z);
 
-  glm::vec3 max_volume_bounds = glm::vec3(vol_dimensions) / glm::vec3(max_dim);
+  glm::vec3 max_volume_bounds = glm::vec3(vol_dimensions) / glm::vec3((float)max_dim);
 
   auto volume_data = loader.load_volume(g_file_string);
 
@@ -145,6 +155,8 @@ int main(int argc, char* argv[])
   } catch (std::logic_error& e) {
     std::cerr << e.what() << std::endl;
   }
+
+  Manipulator manipulator;
 
   while (!win.shouldClose()) {
     if (win.isKeyPressed(GLFW_KEY_ESCAPE)) {
@@ -190,7 +202,7 @@ int main(int argc, char* argv[])
 
     float fovy = 45.0f;
     float aspect = (float)size.x / (float)size.y;
-    float zNear = 0.025, zFar = 100;
+    float zNear = 0.025f, zFar = 100.0f;
     glm::mat4 projection = glm::perspective(fovy, aspect, zNear, zFar);
 
     glm::vec3 translate = max_volume_bounds * glm::vec3(-0.5f);
@@ -221,6 +233,8 @@ int main(int argc, char* argv[])
     glUniform1f(glGetUniformLocation(program, "sampling_distance"), g_sampling_distance);
     glUniform3fv(glGetUniformLocation(program, "max_bounds"), 1,
         glm::value_ptr(max_volume_bounds));
+    glUniform3iv(glGetUniformLocation(program, "volume_dimensions"), 1,
+        glm::value_ptr(vol_dimensions));
 
     glUniformMatrix4fv(glGetUniformLocation(program, "Projection"), 1, GL_FALSE,
         glm::value_ptr(projection));
