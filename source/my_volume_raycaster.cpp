@@ -107,6 +107,8 @@ private:
 
 int main(int argc, char* argv[])
 {  
+   Window win(glm::ivec2(1200, 800));
+
   // initialize the transfer function
   Transfer_function transfer_fun;
   
@@ -123,8 +125,6 @@ int main(int argc, char* argv[])
 
   ///NOTHING TODO UNTIL HERE-------------------------------------------------------------------------------
   
-  Window win(glm::ivec2(1200, 800));
-
   Volume_loader_raw loader;
   glm::ivec3 vol_dimensions = loader.get_dimensions(g_file_string);
 
