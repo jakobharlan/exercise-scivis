@@ -55,6 +55,9 @@ float       g_sampling_distance             = 0.001f;
 glm::vec3   g_light_pos                     = glm::vec3(10.0, 10.0, 0.0);
 glm::vec3   g_light_color                   = glm::vec3(1.0f, 1.0f, 1.0f);
 
+// et backgorund color here
+glm::vec3   g_background_color              = glm::vec3(1.0f, 1.0f, 1.0f);
+
 struct Manipulator
 {
   Manipulator()
@@ -125,25 +128,34 @@ int main(int argc, char* argv[])
 
   ///NOTHING TODO UNTIL HERE-------------------------------------------------------------------------------
   
+  //init volume loader
   Volume_loader_raw loader;
+  //read volume dimensions
   glm::ivec3 vol_dimensions = loader.get_dimensions(g_file_string);
 
   unsigned max_dim = std::max(std::max(vol_dimensions.x,
                             vol_dimensions.y),
                             vol_dimensions.z);
 
+  // calculating max volume bounds of volume (0.0 .. 1.0)
   glm::vec3 max_volume_bounds = glm::vec3(vol_dimensions) / glm::vec3((float)max_dim);
-
+  
+  // loading volume file data
   auto volume_data = loader.load_volume(g_file_string);
 
+  // init and upload volume texture
   glActiveTexture(GL_TEXTURE0);
   createTexture3D(vol_dimensions.x, vol_dimensions.y, vol_dimensions.z, (char*)&volume_data[0]);
 
+  // init and upload transfer function texture
   glActiveTexture(GL_TEXTURE1);
   createTexture2D(255u, 1u, (char*)&transfer_fun.get_RGBA_transfer_function_buffer()[0]);
 
+  // setting up proxy geometry
   Cube cube(glm::vec3(0.0, 0.0, 0.0), max_volume_bounds);
 
+  // loading actual raytracing shader code (volume.vert, volume.frag)
+  // edit volume.frag to define the result of our volume raycaster
   GLuint program(0);
   try {
     program = loadShaders(g_file_vertex_shader, g_file_fragment_shader);
@@ -151,13 +163,28 @@ int main(int argc, char* argv[])
     std::cerr << e.what() << std::endl;
   }
 
+  // init object manipulator (turntable)
   Manipulator manipulator;
 
+  // manage keys here
+  // add new input if neccessary (ie changing sampling distance, isovalues, ...)
   while (!win.shouldClose()) {
+    // exit window with escape
     if (win.isKeyPressed(GLFW_KEY_ESCAPE)) {
       win.stop();
     }
 
+    // to add key inputs:
+    // check win.isKeyPressed(KEY_NAME)
+    // - KEY_NAME - key name      (GLFW_KEY_A ... GLFW_KEY_Z)
+    
+    //if (win.isKeyPressed(GLFW_KEY_X)){
+    //    
+    //        ... do something
+    //    
+    //}
+
+    /// reload shader if key R ist pressed
     if (win.isKeyPressed(GLFW_KEY_R)) {
         if (g_reload_shader_pressed != true) {
             GLuint newProgram(0);
@@ -179,6 +206,7 @@ int main(int argc, char* argv[])
         g_reload_shader_pressed = false;
     }
 
+    /// show transfer function if T is pressed
     if (win.isKeyPressed(GLFW_KEY_T)){
         if (!g_show_transfer_function_pressed){
             g_show_transfer_function = !g_show_transfer_function;
@@ -190,14 +218,12 @@ int main(int argc, char* argv[])
 
     auto size = win.windowSize();
     glViewport(0, 0, size.x, size.y);
-    //glClearColor(0.2f, .2f, .2f, 1.0f);
-    //glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(g_background_color.x, g_background_color.y, g_background_color.z, 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     float fovy = 45.0f;
     float aspect = (float)size.x / (float)size.y;
-    float zNear = 0.025f, zFar = 100.0f;
+    float zNear = 0.025f, zFar = 10.0f;
     glm::mat4 projection = glm::perspective(fovy, aspect, zNear, zFar);
 
     glm::vec3 translate = max_volume_bounds * glm::vec3(-0.5f);
