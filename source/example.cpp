@@ -6,20 +6,17 @@
 //
 // Fensterchen Example
 // -----------------------------------------------------------------------------
+#define _USE_MATH_DEFINES
 #include "fensterchen.hpp"
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <algorithm>
 #include <stdexcept>
-#define _USE_MATH_DEFINES
 #include <cmath>
-#define GLM_FORCE_RADIANS
-
-
-const float M_PI = 3.14f;
 
 ///GLM INCLUDES
+#define GLM_FORCE_RADIANS
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/matrix_access.hpp>
