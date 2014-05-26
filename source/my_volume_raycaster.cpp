@@ -55,8 +55,10 @@ float       g_sampling_distance             = 0.001f;
 glm::vec3   g_light_pos                     = glm::vec3(10.0, 10.0, 0.0);
 glm::vec3   g_light_color                   = glm::vec3(1.0f, 1.0f, 1.0f);
 
-// et backgorund color here
+// set backgorund color here
 glm::vec3   g_background_color              = glm::vec3(1.0f, 1.0f, 1.0f);
+
+glm::ivec2  g_window_res                    = glm::ivec2(800, 800);
 
 struct Manipulator
 {
@@ -110,7 +112,7 @@ private:
 
 int main(int argc, char* argv[])
 {  
-   Window win(glm::ivec2(1200, 800));
+   Window win(g_window_res);
 
   // initialize the transfer function
   Transfer_function transfer_fun;
@@ -122,9 +124,8 @@ int main(int argc, char* argv[])
   //  - unsigned char or float - data value     (0.0 .. 1.0) or (0..255)
   //  - vec4f         - color and alpha value   (0.0 .. 1.0) per channel
   transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  transfer_fun.add(1.0f, glm::vec4(1.0, 1.0, 1.0, 1.0));
-
-
+  transfer_fun.add(1.0f, glm::vec4(0.0, 0.0, 0.0, 1.0));
+  
 
   ///NOTHING TODO UNTIL HERE-------------------------------------------------------------------------------
   
@@ -228,7 +229,7 @@ int main(int argc, char* argv[])
 
     glm::vec3 translate = max_volume_bounds * glm::vec3(-0.5f);
 
-    glm::vec3 eye = glm::vec3(0.0f, 0.0f, 2.0f);
+    glm::vec3 eye = glm::vec3(-2.0f, 0.5f, 1.0f);
     glm::vec3 target = glm::vec3(0.0f);
     glm::vec3 up(0.0f, 1.0f, 0.0f);
 
