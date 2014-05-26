@@ -229,7 +229,7 @@ int main(int argc, char* argv[])
 
     glm::vec3 translate = max_volume_bounds * glm::vec3(-0.5f);
 
-    glm::vec3 eye = glm::vec3(-2.0f, 0.5f, 1.0f);
+    glm::vec3 eye = glm::vec3(0.0f, 0.0f, 1.5f);
     glm::vec3 target = glm::vec3(0.0f);
     glm::vec3 up(0.0f, 1.0f, 0.0f);
 
