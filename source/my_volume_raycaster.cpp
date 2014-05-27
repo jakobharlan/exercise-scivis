@@ -51,12 +51,16 @@ std::string g_file_string                   = "../../../data/head_w256_h256_d225
 // set the sampling distance for the ray traversal
 float       g_sampling_distance             = 0.001f;
 
+
+float       g_iso_value                     = 0.8f;
+
 // set the light position and color for shading
-glm::vec3   g_light_pos                     = glm::vec3(10.0, 10.0, 0.0);
+glm::vec3   g_light_pos                     = glm::vec3(1.0, 1.0, 1.0);
 glm::vec3   g_light_color                   = glm::vec3(1.0f, 1.0f, 1.0f);
 
 // set backgorund color here
-glm::vec3   g_background_color              = glm::vec3(1.0f, 1.0f, 1.0f);
+//glm::vec3   g_background_color              = glm::vec3(1.0f, 1.0f, 1.0f);    // white
+glm::vec3   g_background_color              = glm::vec3(0.0f, 0.0f, 0.0f);      // black
 
 glm::ivec2  g_window_res                    = glm::ivec2(800, 800);
 
@@ -77,8 +81,13 @@ struct Manipulator
         m_mouse_button_pressed[0] = 1;
       }
       m_turntable.rotate(m_lastMouse, m_mouse);
+      m_slideMouse = m_mouse;
+      m_slidelastMouse = m_lastMouse;
     } else {
       m_mouse_button_pressed[0] = 0;
+      m_turntable.rotate(m_slidelastMouse, m_slideMouse);
+      m_slideMouse *= 0.999f;
+      m_slidelastMouse *= 0.999f;
     }
 
     if (win.isButtonPressed(Window::MOUSE_BUTTON_MIDDLE)) {
@@ -99,7 +108,7 @@ struct Manipulator
       m_mouse_button_pressed[2] = 0;
     }
 
-    m_lastMouse = m_mouse;
+    m_lastMouse = m_mouse;    
     return m_turntable.matrix();
   }
 
@@ -108,6 +117,8 @@ private:
   glm::ivec3 m_mouse_button_pressed;
   glm::vec2  m_mouse;
   glm::vec2  m_lastMouse;
+  glm::vec2  m_slideMouse;
+  glm::vec2  m_slidelastMouse;
 };
 
 int main(int argc, char* argv[])
@@ -123,9 +134,9 @@ int main(int argc, char* argv[])
   // the add_stop method takes:
   //  - unsigned char or float - data value     (0.0 .. 1.0) or (0..255)
   //  - vec4f         - color and alpha value   (0.0 .. 1.0) per channel
-  transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  transfer_fun.add(1.0f, glm::vec4(0.0, 0.0, 0.0, 1.0));
-  
+  transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));  
+  transfer_fun.add(1.0f, glm::vec4(1.0, 1.0, 1.0, 1.0));
+   
 
   ///NOTHING TODO UNTIL HERE-------------------------------------------------------------------------------
   
@@ -173,6 +184,32 @@ int main(int argc, char* argv[])
     // exit window with escape
     if (win.isKeyPressed(GLFW_KEY_ESCAPE)) {
       win.stop();
+    }
+
+    if (win.isKeyPressed(GLFW_KEY_LEFT)) {
+        g_light_pos.x -= 0.5f;
+    }
+
+    if (win.isKeyPressed(GLFW_KEY_RIGHT)) {
+        g_light_pos.x += 0.5f;
+    }
+
+    if (win.isKeyPressed(GLFW_KEY_UP)) {
+        g_light_pos.z -= 0.5f;
+    }
+
+    if (win.isKeyPressed(GLFW_KEY_DOWN)) {
+        g_light_pos.z += 0.5f;
+    }
+
+    if (win.isKeyPressed(GLFW_KEY_MINUS)) {
+        g_iso_value -= 0.002f;
+        g_iso_value = std::max(g_iso_value, 0.0f);
+    }
+    
+    if (win.isKeyPressed(GLFW_KEY_EQUAL)) {
+        g_iso_value += 0.002f;
+        g_iso_value = std::min(g_iso_value, 1.0f);
     }
 
     // to add key inputs:
@@ -233,7 +270,9 @@ int main(int argc, char* argv[])
     glm::vec3 target = glm::vec3(0.0f);
     glm::vec3 up(0.0f, 1.0f, 0.0f);
 
-    auto model_view = glm::lookAt(eye, target, up)
+    auto view = glm::lookAt(eye, target, up);
+
+    auto model_view = view
                     * manipulator.matrix(win)
                     // rotate head upright
                     * glm::rotate(0.5f*float(M_PI), glm::vec3(0.0f,1.0f,0.0f))
@@ -246,6 +285,8 @@ int main(int argc, char* argv[])
 
     camera_location /= glm::vec3(camera_translate.w);
 
+    glm::vec4 light_location = glm::vec4(g_light_pos, 1.0f) * model_view;
+
     glUseProgram(program);
 
     glUniform1i(glGetUniformLocation(program, "volume_texture"), 0);
@@ -254,10 +295,20 @@ int main(int argc, char* argv[])
     glUniform3fv(glGetUniformLocation(program, "camera_location"), 1,
         glm::value_ptr(camera_location));
     glUniform1f(glGetUniformLocation(program, "sampling_distance"), g_sampling_distance);
+    glUniform1f(glGetUniformLocation(program, "iso_value"), g_iso_value);
     glUniform3fv(glGetUniformLocation(program, "max_bounds"), 1,
         glm::value_ptr(max_volume_bounds));
     glUniform3iv(glGetUniformLocation(program, "volume_dimensions"), 1,
         glm::value_ptr(vol_dimensions));
+
+    glUniform3fv(glGetUniformLocation(program, "light_position"), 1,
+        //glm::value_ptr(glm::vec3(light_location.x, light_location.y, light_location.z)));
+        glm::value_ptr(g_light_pos));
+    glUniform3fv(glGetUniformLocation(program, "light_color"), 1,
+        glm::value_ptr(g_light_color));
+
+    glUniform3fv(glGetUniformLocation(program, "light_color"), 1,
+        glm::value_ptr(g_light_color));
 
     glUniformMatrix4fv(glGetUniformLocation(program, "Projection"), 1, GL_FALSE,
         glm::value_ptr(projection));
