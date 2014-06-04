@@ -46,23 +46,22 @@ Turntable  g_turntable;
 
 ///SETUP VOLUME RAYCASTER HERE
 // set the volume file
-std::string g_file_string                   = "../../../data/head_w256_h256_d225_c1_b8.raw";
+std::string g_file_string = "../../../data/head_w256_h256_d225_c1_b8.raw";
 
 // set the sampling distance for the ray traversal
 float       g_sampling_distance             = 0.001f;
 
-
-float       g_iso_value                     = 0.8f;
+float       g_iso_value                     = 0.2f;
 
 // set the light position and color for shading
-glm::vec3   g_light_pos                     = glm::vec3(1.0, 1.0, 1.0);
+glm::vec3   g_light_pos                     = glm::vec3(1.0,  1.0,  1.0);
 glm::vec3   g_light_color                   = glm::vec3(1.0f, 1.0f, 1.0f);
 
 // set backgorund color here
-//glm::vec3   g_background_color              = glm::vec3(1.0f, 1.0f, 1.0f);    // white
-glm::vec3   g_background_color              = glm::vec3(0.0f, 0.0f, 0.0f);      // black
+//glm::vec3   g_background_color = glm::vec3(1.0f, 1.0f, 1.0f); //white
+glm::vec3   g_background_color = glm::vec3(0.0f, 0.0f, 0.0f);   //black
 
-glm::ivec2  g_window_res                    = glm::ivec2(800, 800);
+glm::ivec2  g_window_res                    = glm::ivec2(600, 600);
 
 struct Manipulator
 {
@@ -86,8 +85,8 @@ struct Manipulator
     } else {
       m_mouse_button_pressed[0] = 0;
       m_turntable.rotate(m_slidelastMouse, m_slideMouse);
-      m_slideMouse *= 0.999f;
-      m_slidelastMouse *= 0.999f;
+      //m_slideMouse *= 0.99f;
+      //m_slidelastMouse *= 0.99f;
     }
 
     if (win.isButtonPressed(Window::MOUSE_BUTTON_MIDDLE)) {
@@ -134,7 +133,7 @@ int main(int argc, char* argv[])
   // the add_stop method takes:
   //  - unsigned char or float - data value     (0.0 .. 1.0) or (0..255)
   //  - vec4f         - color and alpha value   (0.0 .. 1.0) per channel
-  transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));  
+  transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
   transfer_fun.add(1.0f, glm::vec4(1.0, 1.0, 1.0, 1.0));
    
 
@@ -154,10 +153,12 @@ int main(int argc, char* argv[])
   
   // loading volume file data
   auto volume_data = loader.load_volume(g_file_string);
-
+  auto channel_size = loader.get_bit_per_channel(g_file_string) / 8;
+  auto channel_count = loader.get_channel_count(g_file_string);
+  
   // init and upload volume texture
   glActiveTexture(GL_TEXTURE0);
-  createTexture3D(vol_dimensions.x, vol_dimensions.y, vol_dimensions.z, (char*)&volume_data[0]);
+  createTexture3D(vol_dimensions.x, vol_dimensions.y, vol_dimensions.z, channel_size, channel_count, (char*)&volume_data[0]);
 
   // init and upload transfer function texture
   glActiveTexture(GL_TEXTURE1);
@@ -207,9 +208,19 @@ int main(int argc, char* argv[])
         g_iso_value = std::max(g_iso_value, 0.0f);
     }
     
-    if (win.isKeyPressed(GLFW_KEY_EQUAL)) {
+    if (win.isKeyPressed(GLFW_KEY_EQUAL) || win.isKeyPressed(GLFW_KEY_KP_ADD)) {
         g_iso_value += 0.002f;
         g_iso_value = std::min(g_iso_value, 1.0f);
+    }
+
+    if (win.isKeyPressed(GLFW_KEY_D)) {
+        g_sampling_distance -= 0.0001f;
+        g_sampling_distance = std::max(g_sampling_distance, 0.0001f);
+    }
+
+    if (win.isKeyPressed(GLFW_KEY_S)) {
+        g_sampling_distance += 0.0001f;
+        g_sampling_distance = std::min(g_sampling_distance, 0.2f);
     }
 
     // to add key inputs:
