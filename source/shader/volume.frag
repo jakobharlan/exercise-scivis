@@ -30,7 +30,7 @@ inside_volume_bounds(const in vec3 sampling_position)
 float
 get_nearest_neighbour_sample(vec3 in_sampling_pos){
     
-    vec3 obj_to_tex                 = vec3(1.0f) / max_bounds;
+    vec3 obj_to_tex                 = vec3(1.0) / max_bounds;
     
     /// transform from texture space to array space
     /// ie: (0.3, 0.5, 1.0) -> (76.5 127.5 255.0)
