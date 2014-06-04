@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 cmake_policy(VERSION 2.8)
 
-set(FENSTERCHEN fensterchen)
+set(EXERCISE_SCIVIS exercise_scivis)
 set(FRAMEWORK_NAME framework)
 
-project(${FENSTERCHEN})
+project(${EXERCISE_SCIVIS})
 
 if(CMAKE_CURRENT_SOURCE_DIR EQUAL CMAKE_CURRENT_BINARY_DIR)
   message(FATAL_ERROR "Source and binary directories must be different")
@@ -20,13 +20,13 @@ if(("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" 
   set(CMAKE_CXX_FLAGS "-std=c++0x")
 endif()
 
-option(FENSTERCHEN_IN_SOURCE_BUILD "FENSTERCHEN_IN_SOURCE_BUILD" OFF)
-if(FENSTERCHEN_IN_SOURCE_BUILD)
-  add_definitions(-DFENSTERCHEN_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
-  add_definitions(-DFENSTERCHEN_BINARY_DIR="../")
+option(EXERCISE_SCIVIS_IN_SOURCE_BUILD "EXERCISE_SCIVIS_IN_SOURCE_BUILD" OFF)
+if(EXERCISE_SCIVIS_IN_SOURCE_BUILD)
+  add_definitions(-DEXERCISE_SCIVIS_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+  add_definitions(-DEXERCISE_SCIVIS_BINARY_DIR="../")
 else()
-  add_definitions(-DFENSTERCHEN_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
-  add_definitions(-DFENSTERCHEN_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}")
+  add_definitions(-DEXERCISE_SCIVIS_SOURCE_DIR="${CMAKE_CURRENT_SOURCE_DIR}")
+  add_definitions(-DEXERCISE_SCIVIS_BINARY_DIR="${CMAKE_CURRENT_BINARY_DIR}")
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external)
@@ -67,8 +67,8 @@ else(MSVC)
   endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif(MSVC)
 
-option(FENSTERCHEN_AUTOMATED_TESTS "FENSTERCHEN_AUTOMATED_TESTS" OFF)
-if(FENSTERCHEN_AUTOMATED_TESTS)
+option(EXERCISE_SCIVIS_AUTOMATED_TESTS "EXERCISE_SCIVIS_AUTOMATED_TESTS" OFF)
+if(EXERCISE_SCIVIS_AUTOMATED_TESTS)
   add_definitions(-DAUTOMATED_TESTS)
 endif()
 
@@ -87,8 +87,8 @@ add_subdirectory(framework)
 
 add_subdirectory(source)
 
-set (FENSTERCHEN_TESTS "false" CACHE BOOL "Set to enable testing.")
-if (FENSTERCHEN_TESTS)
+set (EXERCISE_SCIVIS_TESTS "false" CACHE BOOL "Set to enable testing.")
+if (EXERCISE_SCIVIS_TESTS)
   set(UNITTEST_PP_DIRECTORY unittest-cpp)
   include_directories(${CMAKE_CURRENT_SOURCE_DIR}/external/${UNITTEST_PP_DIRECTORY}/UnitTest++)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/${UNITTEST_PP_DIRECTORY})
@@ -97,8 +97,8 @@ if (FENSTERCHEN_TESTS)
 
   add_subdirectory(tests)
   enable_testing()
-  add_test( NAME testFensterchen COMMAND runTests )
-endif (FENSTERCHEN_TESTS)
+  add_test( NAME testEXERCISE_SCIVIS COMMAND runTests )
+endif (EXERCISE_SCIVIS_TESTS)
 
 install (DIRECTORY data DESTINATION .)
 
