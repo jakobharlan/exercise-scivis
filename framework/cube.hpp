@@ -19,6 +19,16 @@ class Cube
 public:
   struct Vertex
   {
+      Vertex(){
+          position = glm::vec3(0.0, 0.0, 0.0);
+          texCoord = glm::vec2(0.0, 0.0);
+      };
+
+	  Vertex(glm::vec3 in_position, glm::vec2 in_texCoord){
+		position = in_position;
+		texCoord = in_texCoord;
+	  };
+
     glm::vec3 position;
     glm::vec2 texCoord;
   };

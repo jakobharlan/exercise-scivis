@@ -66,10 +66,10 @@ glm::ivec2  g_window_res                    = glm::ivec2(600, 600);
 struct Manipulator
 {
   Manipulator()
-    : m_turntable{}
-    , m_mouse_button_pressed{0,0,0}
-    , m_mouse{0.0f,0.0f}
-    , m_lastMouse{0.0f,0.0f}
+    : m_turntable()
+    , m_mouse_button_pressed(0,0,0)
+    , m_mouse(0.0f,0.0f)
+    , m_lastMouse(0.0f,0.0f)
     {}
 
   glm::mat4 matrix(Window const& win)
