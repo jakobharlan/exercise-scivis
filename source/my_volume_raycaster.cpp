@@ -133,11 +133,22 @@ int main(int argc, char* argv[])
   // the add_stop method takes:
   //  - unsigned char or float - data value     (0.0 .. 1.0) or (0..255)
   //  - vec4f         - color and alpha value   (0.0 .. 1.0) per channel
+  ///NOTHING TODO UNTIL HERE-------------------------------------------------------------------------------
+  transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.1f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.2f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.3f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.4f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.5f, glm::vec4(0.0, 0.0, 0.1, 0.1));
+  transfer_fun.add(0.6f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.7f, glm::vec4(0.0, 0.1, 0.0, 0.1));
+  transfer_fun.add(0.8f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.9f, glm::vec4(0.1, 0.0, 0.0, 0.1));
+  transfer_fun.add(1.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  /*
   transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
   transfer_fun.add(1.0f, glm::vec4(1.0, 1.0, 1.0, 1.0));
-   
-
-  ///NOTHING TODO UNTIL HERE-------------------------------------------------------------------------------
+  */
   
   //init volume loader
   Volume_loader_raw loader;
