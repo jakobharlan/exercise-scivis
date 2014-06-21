@@ -53,8 +53,52 @@ get_nearest_neighbour_sample(vec3 in_sampling_pos){
 }
 
 float
+get_triliniear_sample(vec3 in_sampling_pos){
+    
+    vec3 obj_to_tex                 = vec3(1.0) / max_bounds;
+    
+    /// transform from texture space to array space
+    /// ie: (0.3, 0.5, 1.0) -> (76.5 127.5 255.0)
+    vec3 sampling_pos_array_space_f = in_sampling_pos * vec3(volume_dimensions);
+
+    vec3 c_0 = vec3(floor(sampling_pos_array_space_f.x), ceil(sampling_pos_array_space_f.y), ceil(sampling_pos_array_space_f.z)) / vec3(volume_dimensions);
+    vec3 c_1 = vec3(ceil(sampling_pos_array_space_f.x), ceil(sampling_pos_array_space_f.y), ceil(sampling_pos_array_space_f.z)) / vec3(volume_dimensions);
+    vec3 c_2 = vec3(ceil(sampling_pos_array_space_f.x), ceil(sampling_pos_array_space_f.y), floor(sampling_pos_array_space_f.z)) / vec3(volume_dimensions);
+    vec3 c_3 = vec3(floor(sampling_pos_array_space_f.x), ceil(sampling_pos_array_space_f.y), floor(sampling_pos_array_space_f.z)) / vec3(volume_dimensions);
+    vec3 c_4 = vec3(floor(sampling_pos_array_space_f.x), floor(sampling_pos_array_space_f.y), ceil(sampling_pos_array_space_f.z)) / vec3(volume_dimensions);
+    vec3 c_5 = vec3(ceil(sampling_pos_array_space_f.x), floor(sampling_pos_array_space_f.y), ceil(sampling_pos_array_space_f.z)) / vec3(volume_dimensions);
+    vec3 c_6 = vec3(ceil(sampling_pos_array_space_f.x), floor(sampling_pos_array_space_f.y), floor(sampling_pos_array_space_f.z)) / vec3(volume_dimensions);
+    vec3 c_7 = vec3(floor(sampling_pos_array_space_f.x), floor(sampling_pos_array_space_f.y), floor(sampling_pos_array_space_f.z)) / vec3(volume_dimensions);
+
+    float c_0_v = texture(volume_texture, c_0 * obj_to_tex).r;
+    float c_1_v = texture(volume_texture, c_1 * obj_to_tex).r;
+    float c_2_v = texture(volume_texture, c_2 * obj_to_tex).r;
+    float c_3_v = texture(volume_texture, c_3 * obj_to_tex).r;
+    float c_4_v = texture(volume_texture, c_4 * obj_to_tex).r;
+    float c_5_v = texture(volume_texture, c_5 * obj_to_tex).r;
+    float c_6_v = texture(volume_texture, c_6 * obj_to_tex).r;
+    float c_7_v = texture(volume_texture, c_7 * obj_to_tex).r;
+
+    float interpol_value =  (1 - (in_sampling_pos.x-c_0.x)/(c_1.x-c_0.x) )*c_0_v + (in_sampling_pos.x-c_0.x)/(c_1.x-c_0.x)*c_1_v ;
+
+    // this time we just round the transformed coordinates to their next integer neighbors
+    // i.e. nearest neighbor filteringr
+    vec3 interpol_sampling_pos_f;
+    interpol_sampling_pos_f.x = round(sampling_pos_array_space_f.x);
+    interpol_sampling_pos_f.y = round(sampling_pos_array_space_f.y);
+    interpol_sampling_pos_f.z = round(sampling_pos_array_space_f.z);
+        
+
+    /// transform from array space to texture space
+    vec3 sampling_pos_texture_space_f = interpol_sampling_pos_f/vec3(volume_dimensions);
+
+    // access the volume data
+    return interpol_value;
+}
+
+float
 get_sample_data(vec3 in_sampling_pos){
-#if 1
+#if 0
     return get_nearest_neighbour_sample(in_sampling_pos);
 #else
     return get_triliniear_sample(in_sampling_pos);
@@ -78,7 +122,8 @@ void main()
 
 #if AUFGABE == 31
     vec4 max_val = vec4(0.0, 0.0, 0.0, 0.0);
-  
+    
+
     // the traversal loop,
     // termination when the sampling position is outside volume boundarys
     // another termination condition for early ray termination is added
@@ -86,7 +131,7 @@ void main()
     {      
         // get sample
         float s = get_sample_data(sampling_pos);
-                
+
         // apply the transfer functions to retrieve color and opacity
         vec4 color = texture(transfer_texture, vec2(s, s));
           
@@ -108,6 +153,9 @@ void main()
     
 #if AUFGABE == 32
     
+    float sum = 0.0;
+    int count = 0;
+
     // the traversal loop,
     // termination when the sampling position is outside volume boundarys
     // another termination condition for early ray termination is added
@@ -115,9 +163,8 @@ void main()
     {      
         // get sample
         float s = get_sample_data(sampling_pos);
-
-        // garbage code
-        dst = vec4(1.0, 0.0, 0.0, 1.0);
+        sum += s;
+        count++;
         
         // increment the ray sampling position
         sampling_pos  += ray_increment;
@@ -125,6 +172,10 @@ void main()
         // update the loop termination condition
         inside_volume  = inside_volume_bounds(sampling_pos);
     }
+        float average = sum/count;
+        // apply the transfer functions to retrieve color and opacity
+        dst = texture(transfer_texture, vec2(average, average));
+
 #endif
     
 #if AUFGABE == 33
