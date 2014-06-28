@@ -62,7 +62,8 @@ glm::vec3   g_light_color                   = glm::vec3(1.0f, 1.0f, 1.0f);
 //glm::vec3   g_background_color = glm::vec3(1.0f, 1.0f, 1.0f); //white
 glm::vec3   g_background_color = glm::vec3(0.0f, 0.0f, 0.0f);   //black
 
-glm::ivec2  g_window_res                    = glm::ivec2(600, 600);
+// glm::ivec2  g_window_res                    = glm::ivec2(600, 600);
+glm::ivec2  g_window_res                    = glm::ivec2(1600, 1000);
 
 struct Manipulator
 {
@@ -139,7 +140,7 @@ int main(int argc, char* argv[])
 /*  transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
   transfer_fun.add(1.0f, glm::vec4(1.0, 1.0, 1.0, 1.0));*/
 
-
+/*
   // Tranfer Function - great for Composing
   transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
   //Skin and Stuff
@@ -150,12 +151,27 @@ int main(int argc, char* argv[])
   transfer_fun.add(0.35f, glm::vec4(0.0, 0.0, 0.0, 0.0));
   //Bone and Stuff
   transfer_fun.add(0.42f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  transfer_fun.add(0.43f, glm::vec4(1.0, 0.0, 1.0, 0.05));
-  transfer_fun.add(0.84f, glm::vec4(1.0, 1.0, 1.0, 0.2));
+  transfer_fun.add(0.43f, glm::vec4(1.0, 0.0, 1.0, 0.02));
+  transfer_fun.add(0.84f, glm::vec4(1.0, 1.0, 1.0, 0.08));
   transfer_fun.add(0.85f, glm::vec4(0.0, 0.0, 0.0, 0.0));
 
   transfer_fun.add(1.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+*/
+  // Tranfer Function - great for Phong-Composing
+  transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  //Skin and Stuff
+  transfer_fun.add(0.19f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.20f, glm::vec4(1.0, 0.0, 0.0, 0.1));
+  transfer_fun.add(0.27f, glm::vec4(1.0, 0.0, 0.0, 0.05));
+  transfer_fun.add(0.34f, glm::vec4(1.0, 1.0, 0.0, 0.05));
+  transfer_fun.add(0.35f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  //Bone and Stuff
+  transfer_fun.add(0.42f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.43f, glm::vec4(1.0, 0.0, 1.0, 0.1));
+  transfer_fun.add(0.84f, glm::vec4(1.0, 1.0, 1.0, 0.3));
+  transfer_fun.add(0.85f, glm::vec4(0.0, 0.0, 0.0, 0.0));
 
+  transfer_fun.add(1.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
   
   //init volume loader
   Volume_loader_raw loader;

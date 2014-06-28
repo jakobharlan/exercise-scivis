@@ -117,15 +117,31 @@ get_sample_data(vec3 in_sampling_pos){
 #endif
 }
 
-float
-get_gradient(vec3 in_sampling_pos, vec3 ray_increment)
-{
-    float before = get_sample_data(in_sampling_pos - ray_increment);
-    float after = get_sample_data(in_sampling_pos + ray_increment);
-    return after - before;
+vec3
+get_gradient(vec3 in_sampling_pos)
+{   
+    //sampling_pos_array_space_f
+    vec3 spas = in_sampling_pos * vec3(volume_dimensions);
+
+    //6 Points arround sampling pos (in array space)
+    vec3 p_x = vec3(spas.x +1, spas.y, spas.z) / vec3(volume_dimensions);
+    vec3 n_x = vec3(spas.x -1, spas.y, spas.z) / vec3(volume_dimensions);
+    vec3 p_y = vec3(spas.x, spas.y +1, spas.z) / vec3(volume_dimensions);
+    vec3 n_y = vec3(spas.x, spas.y -1, spas.z) / vec3(volume_dimensions);
+    vec3 p_z = vec3(spas.x, spas.y, spas.z +1) / vec3(volume_dimensions);
+    vec3 n_z = vec3(spas.x, spas.y, spas.z -1) / vec3(volume_dimensions);
+
+    float p_x_v = get_sample_data(p_x);
+    float n_x_v = get_sample_data(n_x);
+    float p_y_v = get_sample_data(p_y);
+    float n_y_v = get_sample_data(n_y);
+    float p_z_v = get_sample_data(p_z);
+    float n_z_v = get_sample_data(n_z);
+
+    return vec3(p_x_v - n_x_v, p_y_v - n_y_v, p_z_v - n_z_v);
 }
 
-#define AUFGABE 331  // 31 32 331 332 4 5
+#define AUFGABE 5  // 31 32 331 332 4 5
 void main()
 {
     /// One step trough the volume
@@ -264,39 +280,64 @@ void main()
         // update the loop termination condition
         inside_volume = inside_volume_bounds(sampling_pos);
     }
-	dst = vec4(inten.r, inten.g, inten.b, (1) );
-	//dst = vec4(inten.r, inten.g, inten.b, 1 );
+	dst = vec4(inten.r, inten.g, inten.b, 1 );
 #endif 
 
 #if AUFGABE == 4
-    vec4 max_val = vec4(0.0, 0.0, 0.0, 0.0);
-    
-
     // the traversal loop,
     // termination when the sampling position is outside volume boundarys
     // another termination condition for early ray termination is added
-    while (inside_volume && max_val.a < 0.95) 
-    {      
+
+    float trans = 1.0f;
+    vec3 inten = vec3(0.0 , 0.0 , 0.0);
+    while (inside_volume && trans > 0.05)
+    {
         // get sample
         float s = get_sample_data(sampling_pos);
-
-        // apply the transfer functions to retrieve color and opacity
-        vec4 color = texture(transfer_texture, vec2(s, s));
-        color = color * abs(get_gradient(sampling_pos, ray_increment)) * 100;   
-
-        // this is the example for maximum intensity projection
-        max_val.r = max(color.r, max_val.r);
-        max_val.g = max(color.g, max_val.g);
-        max_val.b = max(color.b, max_val.b);
-        max_val.a = max(color.a, max_val.a);
         
+        // apply transfer fuction
+        vec4 color = texture(transfer_texture, vec2(s, s)); 
+
+        // PFONG
+        vec3 l = (light_position - sampling_pos);
+        vec3 n = (get_gradient(sampling_pos));
+        vec3 v = (sampling_pos - camera_location);
+
+        vec3 l_n = normalize(l);
+        vec3 n_n = normalize(n);
+        vec3 v_n = normalize(v);
+
+        vec3 r = 2 * dot(n_n,l_n) * n_n - l_n;
+        vec3 r_n = normalize(r);
+
+        vec3 ambient = (0.1 * light_color) * color.rgb;
+       
+        vec3 diffuse = vec3(0);
+        if (dot(l_n,n_n) > 0)
+            diffuse = light_color * color.rgb * dot(l_n,n_n);
+
+        vec3 spekular = vec3(0);
+        if (dot(r_n,v_n) > 0)
+            spekular = light_color * color.rgb * pow(dot(r_n,v_n),10.0);   
+
+        vec3 phong = ambient + diffuse + spekular;
+        // calculate current intesity
+        vec3 cur_inten = color.a * phong.rgb;
+
+        // add the current intensity to the total intesity 
+        inten = inten + trans * cur_inten;
+
+        //correct trancparcy
+        trans = trans * (1 - color.a);
+
         // increment the ray sampling position
-        sampling_pos  += ray_increment;
+        sampling_pos += ray_increment;
 
         // update the loop termination condition
-        inside_volume  = inside_volume_bounds(sampling_pos);
+        inside_volume = inside_volume_bounds(sampling_pos);
     }
-    dst = max_val;
+    dst = vec4(inten.r, inten.g, inten.b, (1-trans) );
+
 #endif 
 
 #if AUFGABE == 5
@@ -304,7 +345,8 @@ void main()
     // the traversal loop,
     // termination when the sampling position is outside volume boundarys
     // another termination condition for early ray termination is added
-
+    vec3 last_sampling_pos = sampling_pos;
+    vec3 middle_pos = vec3(0,0,0);
     while (inside_volume && dst.a < 0.95)
     {
         // get sample
@@ -312,11 +354,55 @@ void main()
 
         if (s > iso_value)
         {
-			vec4 color = texture(transfer_texture, vec2(s, s));
-            dst = vec4(color.r, color.g, color.b, 1.0);
+            // Binary Search!
+            for(int i = 0; i < 5; ++i){
+
+                middle_pos = (last_sampling_pos + sampling_pos) / 2;
+                s = get_sample_data(middle_pos);
+                if(s > iso_value) sampling_pos = middle_pos;
+                if(s < iso_value) last_sampling_pos = middle_pos;
+
+            }
+
+            sampling_pos = (last_sampling_pos + sampling_pos) / 2;
+
+            // vec3 gradient = abs ( get_gradient(sampling_pos));
+            // dst = vec4(gradient.r, gradient.g, gradient.b, 1.0);
+
+            s = get_sample_data(sampling_pos);
+            s = 0.25 + s/2;
+            vec4 color = vec4(s);
+            
+            // PFONG
+            vec3 l = (light_position - sampling_pos);
+            vec3 n = (get_gradient(sampling_pos));
+            vec3 v = (sampling_pos - camera_location);
+
+            vec3 l_n = normalize(l);
+            vec3 n_n = normalize(n);
+            vec3 v_n = normalize(v);
+
+            vec3 r = 2 * dot(n_n,l_n) * n_n - l_n;
+            vec3 r_n = normalize(r);
+
+            vec3 ambient = (0.1 * light_color) * color.rgb;
+           
+            vec3 diffuse = vec3(0);
+            if (dot(l_n,n_n) > 0)
+                diffuse = light_color * color.rgb * dot(l_n,n_n);
+
+            vec3 spekular = vec3(0);
+            if (dot(r_n,v_n) > 0)
+                spekular = light_color * color.rgb * pow(dot(r_n,v_n),10.0);   
+
+            vec3 phong = ambient + diffuse + spekular;
+            // calculate current intesity
+            dst = vec4(phong, 1.0);
+
         }
 
-        // increment the ray sampling position
+        // increment the ray sampling position and update last samping position
+        last_sampling_pos = sampling_pos;
         sampling_pos += ray_increment;
 
         // update the loop termination condition
