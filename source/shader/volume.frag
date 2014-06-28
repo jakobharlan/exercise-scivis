@@ -104,10 +104,16 @@ get_triliniear_sample(vec3 in_sampling_pos){
 
 float
 get_sample_data(vec3 in_sampling_pos){
-#if 0
+#define SAMPLE 2
+#if SAMPLE == 0
     return get_nearest_neighbour_sample(in_sampling_pos);
-#else
+#endif
+#if SAMPLE ==  1
     return get_triliniear_sample(in_sampling_pos);
+#endif
+#if SAMPLE == 2
+	vec3 obj_to_tex = vec3(1.0) / max_bounds;
+	return texture(volume_texture, in_sampling_pos * obj_to_tex).r;
 #endif
 }
 
@@ -119,7 +125,7 @@ get_gradient(vec3 in_sampling_pos, vec3 ray_increment)
     return after - before;
 }
 
-#define AUFGABE 33  // 31 32 33 4 5
+#define AUFGABE 331  // 31 32 331 332 4 5
 void main()
 {
     /// One step trough the volume
@@ -191,22 +197,24 @@ void main()
 
 #endif
         
-#if AUFGABE == 33
+#if AUFGABE == 331
     // the traversal loop,
     // termination when the sampling position is outside volume boundarys
     // another termination condition for early ray termination is added
 
     float trans = 1.0f;
-    while (inside_volume && dst.a < 0.95)
+	vec3 inten = vec3(0.0 , 0.0 , 0.0);
+    while (inside_volume && trans > 0.05)
     {
-        // get sample
+	     // get sample
         float s = get_sample_data(sampling_pos);
-
+		
         // apply transfer fuction
         vec4 color = texture(transfer_texture, vec2(s, s)); 
-        
-        // add the color the the intesity 
-        dst = dst + trans * color;
+        vec3 cur_inten = color.a * vec3(color.r, color.g, color.b);
+
+        // add the current intensity to the total intesity 
+        inten = inten + trans * cur_inten;
 
         //correct trancparcy
         trans = trans * (1 - color.a);
@@ -217,7 +225,47 @@ void main()
         // update the loop termination condition
         inside_volume = inside_volume_bounds(sampling_pos);
     }
+	dst = vec4(inten.r, inten.g, inten.b, (1-trans) );
+	//dst = vec4(inten.r, inten.g, inten.b, 1 );
+#endif 
 
+#if AUFGABE == 332
+    // the traversal loop,
+    // termination when the sampling position is outside volume boundarys
+    // another termination condition for early ray termination is added
+
+	while(inside_volume)
+	{
+		// increment the ray sampling position
+        sampling_pos += ray_increment;
+
+        // update the loop termination condition
+        inside_volume = inside_volume_bounds(sampling_pos);
+	}
+	sampling_pos -= ray_increment;
+	inside_volume = true;
+
+	vec3 inten = vec3(0.0 , 0.0 , 0.0);
+    while (inside_volume && dst.a < 0.95)
+    {
+	     // get sample
+        float s = get_sample_data(sampling_pos);
+		
+        // apply transfer fuction
+        vec4 color = texture(transfer_texture, vec2(s, s)); 
+        vec3 cur_inten = color.a * vec3(color.r, color.g, color.b);
+
+        // add the current intensity to the total intesity 
+        inten = cur_inten + inten * (1-color.a);
+
+        // increment the ray sampling position
+        sampling_pos -= ray_increment;
+
+        // update the loop termination condition
+        inside_volume = inside_volume_bounds(sampling_pos);
+    }
+	dst = vec4(inten.r, inten.g, inten.b, (1) );
+	//dst = vec4(inten.r, inten.g, inten.b, 1 );
 #endif 
 
 #if AUFGABE == 4
@@ -264,7 +312,8 @@ void main()
 
         if (s > iso_value)
         {
-            dst = vec4(0.0, 0.0, 1.0, 1.0);
+			vec4 color = texture(transfer_texture, vec2(s, s));
+            dst = vec4(color.r, color.g, color.b, 1.0);
         }
 
         // increment the ray sampling position

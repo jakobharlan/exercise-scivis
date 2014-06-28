@@ -47,11 +47,12 @@ Turntable  g_turntable;
 ///SETUP VOLUME RAYCASTER HERE
 // set the volume file
 std::string g_file_string = "../../../data/head_w256_h256_d225_c1_b8.raw";
+// std::string g_file_string = "../../../data/tooth.raw";
 
 // set the sampling distance for the ray traversal
 float       g_sampling_distance             = 0.001f;
 
-float       g_iso_value                     = 0.2f;
+float       g_iso_value                     = 0.45f;
 
 // set the light position and color for shading
 glm::vec3   g_light_pos                     = glm::vec3(1.0,  1.0,  1.0);
@@ -134,21 +135,27 @@ int main(int argc, char* argv[])
   //  - unsigned char or float - data value     (0.0 .. 1.0) or (0..255)
   //  - vec4f         - color and alpha value   (0.0 .. 1.0) per channel
   ///NOTHING TODO UNTIL HERE-------------------------------------------------------------------------------
+  // Simplest 
+/*  transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(1.0f, glm::vec4(1.0, 1.0, 1.0, 1.0));*/
+
+
+  // Tranfer Function - great for Composing
   transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  transfer_fun.add(0.1f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  transfer_fun.add(0.2f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  transfer_fun.add(0.3f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  transfer_fun.add(0.4f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  transfer_fun.add(0.5f, glm::vec4(0.0, 0.0, 0.1, 0.1));
-  transfer_fun.add(0.6f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  transfer_fun.add(0.7f, glm::vec4(0.0, 0.1, 0.0, 0.1));
-  transfer_fun.add(0.8f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  transfer_fun.add(0.9f, glm::vec4(0.1, 0.0, 0.0, 0.1));
+  //Skin and Stuff
+  transfer_fun.add(0.19f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.20f, glm::vec4(1.0, 0.0, 0.0, 0.07));
+  transfer_fun.add(0.27f, glm::vec4(1.0, 0.0, 0.0, 0.01));
+  transfer_fun.add(0.34f, glm::vec4(1.0, 1.0, 0.0, 0.01));
+  transfer_fun.add(0.35f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  //Bone and Stuff
+  transfer_fun.add(0.42f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.43f, glm::vec4(1.0, 0.0, 1.0, 0.05));
+  transfer_fun.add(0.84f, glm::vec4(1.0, 1.0, 1.0, 0.2));
+  transfer_fun.add(0.85f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+
   transfer_fun.add(1.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  /*
-  transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  transfer_fun.add(1.0f, glm::vec4(1.0, 1.0, 1.0, 1.0));
-  */
+
   
   //init volume loader
   Volume_loader_raw loader;
