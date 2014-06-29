@@ -141,6 +141,31 @@ get_gradient(vec3 in_sampling_pos)
     return vec3(p_x_v - n_x_v, p_y_v - n_y_v, p_z_v - n_z_v);
 }
 
+bool
+shadow(vec3 in_sampling_pos)
+{   
+    vec3 ray_increment = normalize(in_sampling_pos - light_position) * sampling_distance;
+    vec3 sampling_pos = in_sampling_pos + ray_increment; // test, increment just to be sure we away from the surface
+    bool inside_volume = inside_volume_bounds(sampling_pos);
+    while (inside_volume)
+    {
+        // get sample
+        float s = get_sample_data(sampling_pos);
+
+        if (s > iso_value)
+        {
+            return true;
+        }
+
+        // increment the ray sampling position and update last samping position
+        sampling_pos += ray_increment;
+
+        // update the loop termination condition
+        inside_volume = inside_volume_bounds(sampling_pos);
+    }
+    return false;
+}
+
 #define AUFGABE 5  // 31 32 331 332 4 5
 void main()
 {
@@ -360,7 +385,7 @@ void main()
                 middle_pos = (last_sampling_pos + sampling_pos) / 2;
                 s = get_sample_data(middle_pos);
                 if(s > iso_value) sampling_pos = middle_pos;
-                if(s < iso_value) last_sampling_pos = middle_pos;
+                else last_sampling_pos = middle_pos;
 
             }
 
@@ -374,29 +399,37 @@ void main()
             vec4 color = vec4(s);
             
             // PFONG
-            vec3 l = (light_position - sampling_pos);
-            vec3 n = (get_gradient(sampling_pos));
-            vec3 v = (sampling_pos - camera_location);
-
-            vec3 l_n = normalize(l);
-            vec3 n_n = normalize(n);
-            vec3 v_n = normalize(v);
-
-            vec3 r = 2 * dot(n_n,l_n) * n_n - l_n;
-            vec3 r_n = normalize(r);
+            bool shadow = shadow(sampling_pos);
+            // bool shadow = false;
 
             vec3 ambient = (0.1 * light_color) * color.rgb;
-           
-            vec3 diffuse = vec3(0);
-            if (dot(l_n,n_n) > 0)
-                diffuse = light_color * color.rgb * dot(l_n,n_n);
+            vec3 phong = vec3(0);
+            if(shadow){
+                phong = ambient;
+            }else{
+                vec3 l = (light_position - sampling_pos);
+                vec3 n = (get_gradient(sampling_pos));
+                vec3 v = (sampling_pos - camera_location);
 
-            vec3 spekular = vec3(0);
-            if (dot(r_n,v_n) > 0)
-                spekular = light_color * color.rgb * pow(dot(r_n,v_n),10.0);   
+                vec3 l_n = normalize(l);
+                vec3 n_n = normalize(n);
+                vec3 v_n = normalize(v);
 
-            vec3 phong = ambient + diffuse + spekular;
-            // calculate current intesity
+                vec3 r = 2 * dot(n_n,l_n) * n_n - l_n;
+                vec3 r_n = normalize(r);
+
+               
+                vec3 diffuse = vec3(0);
+                if (dot(l_n,n_n) > 0)
+                    diffuse = light_color * color.rgb * dot(l_n,n_n);
+
+                vec3 spekular = vec3(0);
+                if (dot(r_n,v_n) > 0)
+                    spekular = light_color * color.rgb * pow(dot(r_n,v_n),10.0);   
+
+                phong = ambient + diffuse + spekular;
+            }
+            // set color
             dst = vec4(phong, 1.0);
 
         }

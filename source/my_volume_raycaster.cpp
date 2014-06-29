@@ -52,7 +52,7 @@ std::string g_file_string = "../../../data/head_w256_h256_d225_c1_b8.raw";
 // set the sampling distance for the ray traversal
 float       g_sampling_distance             = 0.001f;
 
-float       g_iso_value                     = 0.45f;
+float       g_iso_value                     = 0.2f;
 
 // set the light position and color for shading
 glm::vec3   g_light_pos                     = glm::vec3(1.0,  1.0,  1.0);
