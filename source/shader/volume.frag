@@ -255,7 +255,7 @@ void main()
         vec4 color = texture(transfer_texture, vec2(s, s));
           
         // this is the example for maximum intensity projection
-        max_val.2 = max(color.r, max_val.r);
+        max_val.r = max(color.r, max_val.r);
         max_val.g = max(color.g, max_val.g);
         max_val.b = max(color.b, max_val.b);
         max_val.a = max(color.a, max_val.a);
@@ -499,42 +499,43 @@ void main()
             // dst = vec4(gradient.r, gradient.g, gradient.b, 1.0);
 
             s = get_sample_data(sampling_pos);
-            s = 0.25 + s/2;
-            vec4 color = vec4(s);
+            // s = 0.25 + s/2;
+            // vec4 color = vec4(s);
             
-            // PFONG
-            bool shadow = shadow(sampling_pos);
-            // bool shadow = false;
+            // // PFONG
+            // bool shadow = shadow(sampling_pos);
+            // // bool shadow = false;
 
-            vec3 ambient = (0.1 * light_color) * color.rgb;
-            vec3 phong = vec3(0);
-            if(shadow){
-                phong = ambient;
-            }else{
-                vec3 l = (light_position - sampling_pos);
-                vec3 n = (get_gradient(sampling_pos));
-                vec3 v = (sampling_pos - camera_location);
+            // vec3 ambient = (0.1 * light_color) * color.rgb;
+            // vec3 phong = vec3(0);
+            // if(shadow){
+            //     phong = ambient;
+            // }else{
+            //     vec3 l = (light_position - sampling_pos);
+            //     vec3 n = (get_gradient(sampling_pos));
+            //     vec3 v = (sampling_pos - camera_location);
 
-                vec3 l_n = normalize(l);
-                vec3 n_n = normalize(n);
-                vec3 v_n = normalize(v);
+            //     vec3 l_n = normalize(l);
+            //     vec3 n_n = normalize(n);
+            //     vec3 v_n = normalize(v);
 
-                vec3 r = 2 * dot(n_n,l_n) * n_n - l_n;
-                vec3 r_n = normalize(r);
+            //     vec3 r = 2 * dot(n_n,l_n) * n_n - l_n;
+            //     vec3 r_n = normalize(r);
 
                
-                vec3 diffuse = vec3(0);
-                if (dot(l_n,n_n) > 0)
-                    diffuse = light_color * color.rgb * dot(l_n,n_n);
+            //     vec3 diffuse = vec3(0);
+            //     if (dot(l_n,n_n) > 0)
+            //         diffuse = light_color * color.rgb * dot(l_n,n_n);
 
-                vec3 spekular = vec3(0);
-                if (dot(r_n,v_n) > 0)
-                    spekular = light_color * color.rgb * pow(dot(r_n,v_n),10.0);   
+            //     vec3 spekular = vec3(0);
+            //     if (dot(r_n,v_n) > 0)
+            //         spekular = light_color * color.rgb * pow(dot(r_n,v_n),5.0);   
 
-                phong = ambient + diffuse + spekular;
-            }
+            //     phong = ambient + diffuse + spekular;
+            // }
             // set color
-            dst = vec4(phong, 1.0);
+            vec4 phong = texture(transfer_texture, vec2(s, s)); 
+            dst = vec4(phong.rgb, 1.0);
 
         }
 

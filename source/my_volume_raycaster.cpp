@@ -56,13 +56,14 @@ float       g_iso_value                     = 0.2f;
 
 // set the light position and color for shading
 glm::vec3   g_light_pos                     = glm::vec3(1.0,  1.0,  1.0);
-glm::vec3   g_light_color                   = glm::vec3(1.0f, 0.0f, 1.0f);
+glm::vec3   g_light_color                   = glm::vec3(1.0f, 1.0f, 1.0f);
 
 // set backgorund color here
 //glm::vec3   g_background_color = glm::vec3(1.0f, 1.0f, 1.0f); //white
 glm::vec3   g_background_color = glm::vec3(0.0f, 0.0f, 0.0f);   //black
 
-glm::ivec2  g_window_res                    = glm::ivec2(600, 600);
+// glm::ivec2  g_window_res                    = glm::ivec2(600, 600);
+glm::ivec2  g_window_res                    = glm::ivec2(800, 800);
 // glm::ivec2  g_window_res                    = glm::ivec2(1600, 1000);
 
 struct Manipulator
@@ -137,27 +138,33 @@ int main(int argc, char* argv[])
   //  - vec4f         - color and alpha value   (0.0 .. 1.0) per channel
   ///NOTHING TODO UNTIL HERE-------------------------------------------------------------------------------
   // Simplest 
-/*  transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  transfer_fun.add(1.0f, glm::vec4(1.0, 1.0, 1.0, 1.0));*/
 
-  /*
+  // transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  // transfer_fun.add(0.4f, glm::vec4(1.0, 1.0, 1.0, 1.0));
+  // transfer_fun.add(1.0f, glm::vec4(1.0, 1.0, 1.0, 1.0));
 
-  // Tranfer Function - great for Composing
+  
+
+  // Tranfer Function - great for Compositing
   transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  //Skin and Stuff
-  transfer_fun.add(0.19f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  transfer_fun.add(0.20f, glm::vec4(1.0, 0.0, 0.0, 0.07));
-  transfer_fun.add(0.27f, glm::vec4(1.0, 0.0, 0.0, 0.01));
-  transfer_fun.add(0.34f, glm::vec4(1.0, 1.0, 0.0, 0.01));
+  //Skin
+  transfer_fun.add(0.20f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.21f, glm::vec4(0.8, 0.6, 0.4, 0.03));
+  transfer_fun.add(0.29f, glm::vec4(0.8, 0.6, 0.4, 0.03));
+  transfer_fun.add(0.30f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  //Flesh
   transfer_fun.add(0.35f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  //Bone and Stuff
-  transfer_fun.add(0.42f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  transfer_fun.add(0.43f, glm::vec4(1.0, 0.0, 1.0, 0.02));
-  transfer_fun.add(0.84f, glm::vec4(1.0, 1.0, 1.0, 0.08));
-  transfer_fun.add(0.85f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.36f, glm::vec4(0.8, 0.15, 0.0, 0.1));
+  transfer_fun.add(0.39f, glm::vec4(0.8, 0.15, 0.0, 0.1));
+  transfer_fun.add(0.40f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  //Bone
+  transfer_fun.add(0.45f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(0.46f, glm::vec4(1.0, 1.0, 1.0, 0.09));
+  transfer_fun.add(0.79f, glm::vec4(1.0, 1.0, 1.0, 0.09));
+  transfer_fun.add(0.80f, glm::vec4(0.0, 0.0, 0.0, 0.0));
 
   transfer_fun.add(1.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  */
+  
 
 
 
@@ -187,8 +194,8 @@ int main(int argc, char* argv[])
 
 
 
-  // Tranfer Function - great for Phong-Composing
-  transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  // Tranfer Function - great for Phong-Compositing
+ /* transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
   //Skin and Stuff
   transfer_fun.add(0.19f, glm::vec4(0.0, 0.0, 0.0, 0.0));
   transfer_fun.add(0.20f, glm::vec4(1.0, 0.0, 0.0, 0.1));
@@ -201,7 +208,7 @@ int main(int argc, char* argv[])
   transfer_fun.add(0.84f, glm::vec4(1.0, 1.0, 1.0, 0.3));
   transfer_fun.add(0.85f, glm::vec4(0.0, 0.0, 0.0, 0.0));
 
-  transfer_fun.add(1.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  transfer_fun.add(1.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));*/
 
   //init volume loader
   Volume_loader_raw loader;
