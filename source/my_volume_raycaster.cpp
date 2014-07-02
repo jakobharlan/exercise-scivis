@@ -47,7 +47,7 @@ Turntable  g_turntable;
 ///SETUP VOLUME RAYCASTER HERE
 // set the volume file
 std::string g_file_string = "../../../data/head_w256_h256_d225_c1_b8.raw";
-// std::string g_file_string = "../../../data/tooth.raw";
+// std::string g_file_string = "../../../data/tooth.raw"; 
 
 // set the sampling distance for the ray traversal
 float       g_sampling_distance             = 0.001f;
@@ -56,14 +56,14 @@ float       g_iso_value                     = 0.2f;
 
 // set the light position and color for shading
 glm::vec3   g_light_pos                     = glm::vec3(1.0,  1.0,  1.0);
-glm::vec3   g_light_color                   = glm::vec3(1.0f, 1.0f, 1.0f);
+glm::vec3   g_light_color                   = glm::vec3(1.0f, 0.0f, 1.0f);
 
 // set backgorund color here
 //glm::vec3   g_background_color = glm::vec3(1.0f, 1.0f, 1.0f); //white
 glm::vec3   g_background_color = glm::vec3(0.0f, 0.0f, 0.0f);   //black
 
-// glm::ivec2  g_window_res                    = glm::ivec2(600, 600);
-glm::ivec2  g_window_res                    = glm::ivec2(1600, 1000);
+glm::ivec2  g_window_res                    = glm::ivec2(600, 600);
+// glm::ivec2  g_window_res                    = glm::ivec2(1600, 1000);
 
 struct Manipulator
 {
@@ -140,7 +140,8 @@ int main(int argc, char* argv[])
 /*  transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
   transfer_fun.add(1.0f, glm::vec4(1.0, 1.0, 1.0, 1.0));*/
 
-/*
+  /*
+
   // Tranfer Function - great for Composing
   transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
   //Skin and Stuff
@@ -156,7 +157,36 @@ int main(int argc, char* argv[])
   transfer_fun.add(0.85f, glm::vec4(0.0, 0.0, 0.0, 0.0));
 
   transfer_fun.add(1.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-*/
+  */
+
+
+
+  /*
+
+  // Tranfer Function - great for Pre Classification, actually Pre Classification is never great
+  transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  //Bone and Stuff
+  transfer_fun.add(0.20f, glm::vec4(0.0, 0.0, 0.0, 0.00));
+  
+  transfer_fun.add(0.21f, glm::vec4(0.0, 0.1, 1.0, 0.01));
+  transfer_fun.add(0.22f, glm::vec4(0.0, 0.2, 0.0, 0.02));
+  transfer_fun.add(0.23f, glm::vec4(0.0, 0.3, 1.0, 0.03));
+  transfer_fun.add(0.24f, glm::vec4(0.0, 0.4, 0.0, 0.04));
+  transfer_fun.add(0.25f, glm::vec4(0.0, 0.5, 1.0, 0.05));
+  transfer_fun.add(0.26f, glm::vec4(0.0, 0.6, 0.0, 0.06));
+  transfer_fun.add(0.27f, glm::vec4(0.0, 0.7, 1.0, 0.07));
+  transfer_fun.add(0.28f, glm::vec4(0.0, 0.8, 0.0, 0.08));
+  transfer_fun.add(0.29f, glm::vec4(0.0, 0.9, 1.0, 0.09));
+  
+  transfer_fun.add(0.30f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+
+  transfer_fun.add(1.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+  */
+
+
+
+
+
   // Tranfer Function - great for Phong-Composing
   transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
   //Skin and Stuff
@@ -172,7 +202,7 @@ int main(int argc, char* argv[])
   transfer_fun.add(0.85f, glm::vec4(0.0, 0.0, 0.0, 0.0));
 
   transfer_fun.add(1.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  
+
   //init volume loader
   Volume_loader_raw loader;
   //read volume dimensions
@@ -237,7 +267,7 @@ int main(int argc, char* argv[])
         g_light_pos.z += 0.5f;
     }
 
-    if (win.isKeyPressed(GLFW_KEY_MINUS)) {
+    if (win.isKeyPressed(GLFW_KEY_MINUS) || win.isKeyPressed(GLFW_KEY_M)) {
         g_iso_value -= 0.002f;
         g_iso_value = std::max(g_iso_value, 0.0f);
     }

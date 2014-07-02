@@ -19,6 +19,7 @@ uniform ivec3   volume_dimensions;
 uniform vec3    light_position;
 uniform vec3    light_color;
 
+float       start_sampling_distance             = 0.001f;
 
 bool
 inside_volume_bounds(const in vec3 sampling_position)
@@ -102,6 +103,64 @@ get_triliniear_sample(vec3 in_sampling_pos){
     return c;
 }
 
+vec4
+get_preclassification_color(vec3 in_sampling_pos){
+    
+    vec3 obj_to_tex                 = vec3(1.0) / max_bounds;
+    
+    /// transform from texture space to array space
+    /// ie: (0.3, 0.5, 1.0) -> (76.5 127.5 255.0)
+    vec3 sampling_pos_array_space_f = in_sampling_pos * vec3(volume_dimensions);
+
+    vec3 fV = floor(sampling_pos_array_space_f) / vec3(volume_dimensions);
+    vec3 cV = ceil(sampling_pos_array_space_f) / vec3(volume_dimensions);
+
+    vec3 c_000 = vec3(fV.x , fV.y , fV.z);
+    vec3 c_100 = vec3(cV.x , fV.y , fV.z);
+    vec3 c_110 = vec3(cV.x , cV.y , fV.z);
+    vec3 c_010 = vec3(fV.x , cV.y , fV.z);
+    
+    vec3 c_001 = vec3(fV.x , fV.y ,  cV.z);
+    vec3 c_101 = vec3(cV.x , fV.y ,  cV.z);
+    vec3 c_111 = vec3(cV.x , cV.y ,  cV.z);
+    vec3 c_011 = vec3(fV.x , cV.y ,  cV.z);
+    
+    float c_000_v = texture(volume_texture, c_000 * obj_to_tex).r;
+    float c_100_v = texture(volume_texture, c_100 * obj_to_tex).r;
+    float c_110_v = texture(volume_texture, c_110 * obj_to_tex).r;
+    float c_010_v = texture(volume_texture, c_010 * obj_to_tex).r;
+    float c_001_v = texture(volume_texture, c_001 * obj_to_tex).r;
+    float c_101_v = texture(volume_texture, c_101 * obj_to_tex).r;
+    float c_111_v = texture(volume_texture, c_111 * obj_to_tex).r;
+    float c_011_v = texture(volume_texture, c_011 * obj_to_tex).r;
+
+    vec4 c_000_c = texture(transfer_texture, vec2(c_000_v, c_000_v));
+    vec4 c_100_c = texture(transfer_texture, vec2(c_100_v, c_100_v));
+    vec4 c_110_c = texture(transfer_texture, vec2(c_110_v, c_110_v));
+    vec4 c_010_c = texture(transfer_texture, vec2(c_010_v, c_010_v));
+    vec4 c_001_c = texture(transfer_texture, vec2(c_001_v, c_001_v));
+    vec4 c_101_c = texture(transfer_texture, vec2(c_101_v, c_101_v));
+    vec4 c_111_c = texture(transfer_texture, vec2(c_111_v, c_111_v));
+    vec4 c_011_c = texture(transfer_texture, vec2(c_011_v, c_011_v));
+
+    // Distances from Corners 
+    float xd = (in_sampling_pos.x - fV.x) / (cV.x - fV.x);
+    float yd = (in_sampling_pos.y - fV.y) / (cV.y - fV.y);
+    float zd = (in_sampling_pos.z - fV.z) / (cV.z - fV.z);
+
+    vec4 c00 = (1-xd)*c_000_c + xd*c_100_c;
+    vec4 c10 = (1-xd)*c_010_c + xd*c_110_c;
+    vec4 c01 = (1-xd)*c_001_c + xd*c_101_c;
+    vec4 c11 = (1-xd)*c_011_c + xd*c_111_c;
+
+    vec4 c0 = (1-yd)*c00 + yd*c10;
+    vec4 c1 = (1-yd)*c01 + yd*c11;
+
+    vec4 c  = (1-zd)*c0 + zd*c1;
+
+    return c;
+}
+
 float
 get_sample_data(vec3 in_sampling_pos){
 #define SAMPLE 2
@@ -166,7 +225,7 @@ shadow(vec3 in_sampling_pos)
     return false;
 }
 
-#define AUFGABE 5  // 31 32 331 332 4 5
+#define AUFGABE 4  // 31 32 3311 3312 332 4 5
 void main()
 {
     /// One step trough the volume
@@ -196,7 +255,7 @@ void main()
         vec4 color = texture(transfer_texture, vec2(s, s));
           
         // this is the example for maximum intensity projection
-        max_val.r = max(color.r, max_val.r);
+        max_val.2 = max(color.r, max_val.r);
         max_val.g = max(color.g, max_val.g);
         max_val.b = max(color.b, max_val.b);
         max_val.a = max(color.a, max_val.a);
@@ -223,9 +282,12 @@ void main()
     {      
         // get sample
         float s = get_sample_data(sampling_pos);
-        sum += s;
-        count++;
-        
+        if (s > iso_value)
+        {
+            sum += s;
+            count++;
+        }
+
         // increment the ray sampling position
         sampling_pos  += ray_increment;
 
@@ -238,7 +300,7 @@ void main()
 
 #endif
         
-#if AUFGABE == 331
+#if AUFGABE == 3311
     // the traversal loop,
     // termination when the sampling position is outside volume boundarys
     // another termination condition for early ray termination is added
@@ -247,13 +309,48 @@ void main()
 	vec3 inten = vec3(0.0 , 0.0 , 0.0);
     while (inside_volume && trans > 0.05)
     {
-	     // get sample
+         // get sample
         float s = get_sample_data(sampling_pos);
-		
+
         // apply transfer fuction
         vec4 color = texture(transfer_texture, vec2(s, s)); 
+
+        // correct the alpha
+        color.a = 1 - pow( 1.0 - color.a , sampling_distance / start_sampling_distance);
         vec3 cur_inten = color.a * vec3(color.r, color.g, color.b);
 
+        // add the current intensity to the total intesity 
+        inten = inten + trans * cur_inten;
+
+        // adjust trancparcy
+        trans = trans * (1 - color.a);
+
+        // increment the ray sampling position
+        sampling_pos += ray_increment;
+
+        // update the loop termination condition
+        inside_volume = inside_volume_bounds(sampling_pos);
+    }
+	dst = vec4(inten.r, inten.g, inten.b, (1-trans) );
+	//dst = vec4(inten.r, inten.g, inten.b, 1 );
+#endif 
+
+#if AUFGABE == 3312
+    // the traversal loop,
+    // termination when the sampling position is outside volume boundarys
+    // another termination condition for early ray termination is added
+
+    float trans = 1.0f;
+    vec3 inten = vec3(0.0 , 0.0 , 0.0);
+    while (inside_volume && trans > 0.05)
+    {
+        // get color
+        vec4 color = get_preclassification_color(sampling_pos); 
+        
+        // correct the alpha
+        color.a = 1 - pow( 1.0 - color.a , sampling_distance / start_sampling_distance);
+
+        vec3 cur_inten = color.a * vec3(color.r, color.g, color.b);
         // add the current intensity to the total intesity 
         inten = inten + trans * cur_inten;
 
@@ -266,8 +363,8 @@ void main()
         // update the loop termination condition
         inside_volume = inside_volume_bounds(sampling_pos);
     }
-	dst = vec4(inten.r, inten.g, inten.b, (1-trans) );
-	//dst = vec4(inten.r, inten.g, inten.b, 1 );
+    dst = vec4(inten.r, inten.g, inten.b, (1-trans) );
+    //dst = vec4(inten.r, inten.g, inten.b, 1 );
 #endif 
 
 #if AUFGABE == 332
@@ -294,6 +391,10 @@ void main()
 		
         // apply transfer fuction
         vec4 color = texture(transfer_texture, vec2(s, s)); 
+
+        // correct the alpha
+        color.a = 1 - pow( 1.0 - color.a , sampling_distance / start_sampling_distance);
+
         vec3 cur_inten = color.a * vec3(color.r, color.g, color.b);
 
         // add the current intensity to the total intesity 
@@ -322,6 +423,9 @@ void main()
         
         // apply transfer fuction
         vec4 color = texture(transfer_texture, vec2(s, s)); 
+
+        // correct the alpha
+        color.a = 1 - pow( 1.0 - color.a , sampling_distance / start_sampling_distance);
 
         // PFONG
         vec3 l = (light_position - sampling_pos);
