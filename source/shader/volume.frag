@@ -225,7 +225,7 @@ shadow(vec3 in_sampling_pos)
     return false;
 }
 
-#define AUFGABE 4  // 31 32 3311 3312 332 4 5
+#define AUFGABE 3312  // 31 32 3311 3312 332 4 5
 void main()
 {
     /// One step trough the volume
@@ -278,7 +278,7 @@ void main()
     // the traversal loop,
     // termination when the sampling position is outside volume boundarys
     // another termination condition for early ray termination is added
-    while (inside_volume && dst.a < 0.95)
+    while (inside_volume)
     {      
         // get sample
         float s = get_sample_data(sampling_pos);
@@ -384,7 +384,7 @@ void main()
 	inside_volume = true;
 
 	vec3 inten = vec3(0.0 , 0.0 , 0.0);
-    while (inside_volume && dst.a < 0.95)
+    while (inside_volume)
     {
 	     // get sample
         float s = get_sample_data(sampling_pos);
@@ -393,7 +393,7 @@ void main()
         vec4 color = texture(transfer_texture, vec2(s, s)); 
 
         // correct the alpha
-        color.a = 1 - pow( 1.0 - color.a , sampling_distance / start_sampling_distance);
+        //color.a = 1 - pow( 1.0 - color.a , sampling_distance / start_sampling_distance);
 
         vec3 cur_inten = color.a * vec3(color.r, color.g, color.b);
 
@@ -499,42 +499,42 @@ void main()
             // dst = vec4(gradient.r, gradient.g, gradient.b, 1.0);
 
             s = get_sample_data(sampling_pos);
-            // s = 0.25 + s/2;
-            // vec4 color = vec4(s);
+            s = 0.25 + s/2;
+            vec4 color = vec4(s);
             
-            // // PFONG
-            // bool shadow = shadow(sampling_pos);
-            // // bool shadow = false;
+             // PFONG
+             bool shadow = shadow(sampling_pos);
+             // bool shadow = false;
 
-            // vec3 ambient = (0.1 * light_color) * color.rgb;
-            // vec3 phong = vec3(0);
-            // if(shadow){
-            //     phong = ambient;
-            // }else{
-            //     vec3 l = (light_position - sampling_pos);
-            //     vec3 n = (get_gradient(sampling_pos));
-            //     vec3 v = (sampling_pos - camera_location);
+             vec3 ambient = (0.1 * light_color) * color.rgb;
+             vec3 phong = vec3(0);
+             if(shadow){
+                 phong = ambient;
+             }else{
+                 vec3 l = (light_position - sampling_pos);
+                 vec3 n = (get_gradient(sampling_pos));
+                 vec3 v = (sampling_pos - camera_location);
 
-            //     vec3 l_n = normalize(l);
-            //     vec3 n_n = normalize(n);
-            //     vec3 v_n = normalize(v);
+                 vec3 l_n = normalize(l);
+                 vec3 n_n = normalize(n);
+                 vec3 v_n = normalize(v);
 
-            //     vec3 r = 2 * dot(n_n,l_n) * n_n - l_n;
-            //     vec3 r_n = normalize(r);
+                 vec3 r = 2 * dot(n_n,l_n) * n_n - l_n;
+                 vec3 r_n = normalize(r);
 
                
-            //     vec3 diffuse = vec3(0);
-            //     if (dot(l_n,n_n) > 0)
-            //         diffuse = light_color * color.rgb * dot(l_n,n_n);
+                 vec3 diffuse = vec3(0);
+                 if (dot(l_n,n_n) > 0)
+                     diffuse = light_color * color.rgb * dot(l_n,n_n);
 
-            //     vec3 spekular = vec3(0);
-            //     if (dot(r_n,v_n) > 0)
-            //         spekular = light_color * color.rgb * pow(dot(r_n,v_n),5.0);   
+                 vec3 spekular = vec3(0);
+                 if (dot(r_n,v_n) > 0)
+                     spekular = light_color * color.rgb * pow(dot(r_n,v_n),5.0);   
 
-            //     phong = ambient + diffuse + spekular;
-            // }
+                 phong = ambient + diffuse + spekular;
+             }
             // set color
-            vec4 phong = texture(transfer_texture, vec2(s, s)); 
+            //vec4 phong = texture(transfer_texture, vec2(s, s)); 
             dst = vec4(phong.rgb, 1.0);
 
         }

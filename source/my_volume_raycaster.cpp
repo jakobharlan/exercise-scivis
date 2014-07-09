@@ -138,19 +138,19 @@ int main(int argc, char* argv[])
   //  - vec4f         - color and alpha value   (0.0 .. 1.0) per channel
   ///NOTHING TODO UNTIL HERE-------------------------------------------------------------------------------
   // Simplest 
-
-  // transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  // transfer_fun.add(0.4f, glm::vec4(1.0, 1.0, 1.0, 1.0));
+	/*
+   transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
+   transfer_fun.add(0.4f, glm::vec4(1.0, 1.0, 1.0, 1.0));
   // transfer_fun.add(1.0f, glm::vec4(1.0, 1.0, 1.0, 1.0));
-
+	*/
   
-
+  /*
   // Tranfer Function - great for Compositing
   transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
   //Skin
   transfer_fun.add(0.20f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  transfer_fun.add(0.21f, glm::vec4(0.8, 0.6, 0.4, 0.03));
-  transfer_fun.add(0.29f, glm::vec4(0.8, 0.6, 0.4, 0.03));
+  transfer_fun.add(0.21f, glm::vec4(0.8, 0.6, 0.4, 0.1));
+  transfer_fun.add(0.29f, glm::vec4(0.8, 0.6, 0.4, 0.1));
   transfer_fun.add(0.30f, glm::vec4(0.0, 0.0, 0.0, 0.0));
   //Flesh
   transfer_fun.add(0.35f, glm::vec4(0.0, 0.0, 0.0, 0.0));
@@ -164,33 +164,33 @@ int main(int argc, char* argv[])
   transfer_fun.add(0.80f, glm::vec4(0.0, 0.0, 0.0, 0.0));
 
   transfer_fun.add(1.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  
+*/
 
 
 
-  /*
+
+
+
 
   // Tranfer Function - great for Pre Classification, actually Pre Classification is never great
   transfer_fun.add(0.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
   //Bone and Stuff
   transfer_fun.add(0.20f, glm::vec4(0.0, 0.0, 0.0, 0.00));
   
-  transfer_fun.add(0.21f, glm::vec4(0.0, 0.1, 1.0, 0.01));
-  transfer_fun.add(0.22f, glm::vec4(0.0, 0.2, 0.0, 0.02));
-  transfer_fun.add(0.23f, glm::vec4(0.0, 0.3, 1.0, 0.03));
-  transfer_fun.add(0.24f, glm::vec4(0.0, 0.4, 0.0, 0.04));
-  transfer_fun.add(0.25f, glm::vec4(0.0, 0.5, 1.0, 0.05));
-  transfer_fun.add(0.26f, glm::vec4(0.0, 0.6, 0.0, 0.06));
-  transfer_fun.add(0.27f, glm::vec4(0.0, 0.7, 1.0, 0.07));
-  transfer_fun.add(0.28f, glm::vec4(0.0, 0.8, 0.0, 0.08));
-  transfer_fun.add(0.29f, glm::vec4(0.0, 0.9, 1.0, 0.09));
+  transfer_fun.add(0.21f, glm::vec4(0.0, 0.1, 1.0, 0.245));
+  transfer_fun.add(0.22f, glm::vec4(0.0, 0.2, 0.0, 0.245));
+  transfer_fun.add(0.23f, glm::vec4(0.0, 0.3, 1.0, 0.245));
+  transfer_fun.add(0.24f, glm::vec4(0.0, 0.4, 0.0, 0.245));
+  transfer_fun.add(0.25f, glm::vec4(0.0, 0.5, 1.0, 0.245));
+  transfer_fun.add(0.26f, glm::vec4(0.0, 0.6, 0.0, 0.245));
+  transfer_fun.add(0.27f, glm::vec4(0.0, 0.7, 1.0, 0.245));
+  transfer_fun.add(0.28f, glm::vec4(0.0, 0.8, 0.0, 0.245));
+  transfer_fun.add(0.29f, glm::vec4(0.0, 0.9, 1.0, 0.245));
   
   transfer_fun.add(0.30f, glm::vec4(0.0, 0.0, 0.0, 0.0));
 
   transfer_fun.add(1.0f, glm::vec4(0.0, 0.0, 0.0, 0.0));
-  */
-
-
+	
 
 
 
